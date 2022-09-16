@@ -1,0 +1,20 @@
+.container {
+  width: 100vw;
+}
+
+.text {
+  color: white;
+}
+
+.dropdown_dark {
+  background: #1b1b1b;
+}
+
+.dropdown_item_dark {
+  color: white;
+}
+
+.dropdown_item_dark:hover {
+  background: #404040;
+  color: white;
+}
