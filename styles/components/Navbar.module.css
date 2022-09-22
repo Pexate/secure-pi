@@ -7,14 +7,24 @@
 }
 
 .dropdown_dark {
-  background: #1b1b1b;
+  background: #1b1b1b !important;
 }
 
 .dropdown_item_dark {
-  color: white;
+  color: white !important;
 }
 
 .dropdown_item_dark:hover {
-  background: #404040;
-  color: white;
+  background: #404040 !important;
+  color: white !important;
+}
+
+.nav-link {
+  text-decoration: none !important;
+  color: white !important;
+}
+
+a navlink Link .nav-link {
+  text-decoration: none !important;
+  color: white !important;
 }

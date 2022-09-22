@@ -1,0 +1,35 @@
+.footer {
+  display: flex;
+  flex: 1;
+  padding: 2rem 0;
+  border-top: 1px solid #eaeaea;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.main {
+  height: 100%;
+  width: 100%;
+}
+
+.content_wrapper {
+  width: 600px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.view_one {
+  height: 100vh;
+}
+
+.dark {
+  background-color: black !important;
+}

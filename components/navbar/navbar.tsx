@@ -1,5 +1,6 @@
 import Image from "next/image";
 import styles from "/styles/components/Navbar.module.css";
+import Link from "next/link";
 
 import { FunctionComponent } from "react";
 
@@ -25,29 +26,51 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useThemeContext } from "/context/context";
+
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "/firebase/firebaseconf";
 
 const CustomNavbar: FunctionComponent = () => {
   const [dropdown, setDropdown] = useState(false);
-  const context = useThemeContext();
+  const context: { theme: string; changeTheme: () => void } = useThemeContext();
+  const [user, loading, error] = useAuthState(auth);
 
   const toggleDropdown = () => {
     setDropdown(!dropdown);
   };
 
-  return (
-    <Navbar type={context.theme} theme="transparent" expand="md">
-      <NavbarBrand href="#">Shards React</NavbarBrand>
+  //useEffect(() => {
+  //  if
+  //}, [user, loading, error]);
 
-      <Collapse open={toggleDropdown} navbar>
+  return (
+    <Navbar type={context.theme} theme="transparent" expand="sm">
+      <NavbarBrand>
+        <Link href="/">
+          <Image
+            src="/scurepi.png"
+            width={48}
+            height={48}
+            style={
+              context.theme === "dark"
+                ? { filter: "invert(100%)", cursor: "pointer" }
+                : { cursor: "pointer" }
+            }
+          ></Image>
+        </Link>
+      </NavbarBrand>
+
+      <Collapse navbar>
         <Nav navbar>
-          <NavItem>
-            <NavLink href="#">Active</NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink href="#">Disabled</NavLink>
-          </NavItem>
+          <Link
+            href="/register"
+            className={styles.navlink}
+            style={{ textDecoration: "none" }}
+          >
+            <NavLink style={{ cursor: "pointer" }}>Registriraj se</NavLink>
+          </Link>
           <Dropdown open={dropdown} toggle={toggleDropdown}>
             <DropdownToggle nav caret>
               Dropdown
@@ -80,26 +103,31 @@ const CustomNavbar: FunctionComponent = () => {
           </Dropdown>
         </Nav>
         <Nav navbar className="ml-auto">
-          <button
-            style={{
-              border: "none",
-              background: "transparent",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            onClick={context.changeTheme}
-          >
-            <Image
-              src="/moon.png"
-              width={24}
-              height={24}
+          <NavItem>
+            {user ? <Link href="/">{user.displayName}</Link> : ""}
+          </NavItem>
+          <NavItem>
+            <button
               style={{
-                filter:
-                  context.theme === "dark" ? "invert(100%)" : "invert(0%)",
+                border: "none",
+                background: "transparent",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
-            />
-          </button>
+              onClick={context.changeTheme}
+            >
+              <Image
+                src="/moon.png"
+                width={24}
+                height={24}
+                style={{
+                  filter:
+                    context.theme === "dark" ? "invert(100%)" : "invert(0%)",
+                }}
+              />
+            </button>
+          </NavItem>
         </Nav>
       </Collapse>
     </Navbar>
