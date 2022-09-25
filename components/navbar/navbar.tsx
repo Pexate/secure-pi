@@ -21,6 +21,7 @@ import {
   FormInput,
   Collapse,
   Button,
+  Badge,
 } from "shards-react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -31,19 +32,30 @@ import { useThemeContext } from "/context/context";
 
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "/firebase/firebaseconf";
+import router from "next/router";
 
 const CustomNavbar: FunctionComponent = () => {
   const [dropdown, setDropdown] = useState(false);
   const context: { theme: string; changeTheme: () => void } = useThemeContext();
   const [user, loading, error] = useAuthState(auth);
+  const [profileNameColor, setProfileNameColor] = useState(false);
 
   const toggleDropdown = () => {
     setDropdown(!dropdown);
   };
 
-  //useEffect(() => {
-  //  if
-  //}, [user, loading, error]);
+  const changeProfileNameColor = () => {
+    setProfileNameColor(!profileNameColor);
+  };
+
+  useEffect(() => {
+    console.log(localStorage.getItem("theme"), context.theme);
+    if (
+      localStorage.getItem("theme") &&
+      context.theme !== localStorage.getItem("theme")
+    )
+      context.changeTheme();
+  }, []);
 
   return (
     <Navbar type={context.theme} theme="transparent" expand="sm">
@@ -104,7 +116,23 @@ const CustomNavbar: FunctionComponent = () => {
         </Nav>
         <Nav navbar className="ml-auto">
           <NavItem>
-            {user ? <Link href="/">{user.displayName}</Link> : ""}
+            {user ? (
+              <Badge
+                theme={
+                  context.theme === "dark" || profileNameColor
+                    ? "light"
+                    : "dark"
+                }
+                style={{ marginRight: 8, cursor: "pointer", fontSize: 12 }}
+                onMouseOver={() => changeProfileNameColor()}
+                onMouseOut={() => changeProfileNameColor()}
+                onClick={() => router.push("/dashboard")}
+              >
+                {user.displayName}
+              </Badge>
+            ) : (
+              ""
+            )}
           </NavItem>
           <NavItem>
             <button

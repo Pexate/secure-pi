@@ -21,6 +21,15 @@ const Home: NextPage = () => {
         style={{ background: context.theme === "dark" ? "#212121" : "#ffffff" }}
       >
         <CustomNavbar />
+        <div
+          className={
+            context.theme === "dark"
+              ? styles.dark_wrapper
+              : styles.light_wrapper
+          }
+        >
+          <h1>Hello</h1>
+        </div>
       </main>
 
       <footer className={styles.footer}>
