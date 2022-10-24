@@ -46,6 +46,7 @@ const CustomNavbar: FunctionComponent = () => {
 
   const changeProfileNameColor = () => {
     setProfileNameColor(!profileNameColor);
+    console.log(profileNameColor, context.theme);
   };
 
   useEffect(() => {
@@ -119,7 +120,11 @@ const CustomNavbar: FunctionComponent = () => {
             {user ? (
               <Badge
                 theme={
-                  context.theme === "dark" || profileNameColor
+                  context.theme === "dark"
+                    ? profileNameColor
+                      ? "dark"
+                      : "light"
+                    : profileNameColor
                     ? "light"
                     : "dark"
                 }

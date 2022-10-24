@@ -12,9 +12,16 @@ import { auth } from "../../firebase/firebaseconf";
 
 import { Button } from "shards-react";
 
+import { logOut } from "/firebase/firebaseMethods";
+
 const Dashboard: NextPage = () => {
   const context = useThemeContext();
   const [user, loading, error] = useAuthState(auth);
+
+  const logOutClick = async () => {
+    await logOut();
+    router.push("/");
+  };
   useEffect(() => {
     //if (user === null) router.push("/");
   }, [user, loading, error]);
@@ -51,6 +58,7 @@ const Dashboard: NextPage = () => {
               theme={context.theme === "dark" ? "white" : "dark"}
               outline
               block
+              onClick={() => logOutClick()}
             >
               <b>Odjavi se</b>
             </Button>

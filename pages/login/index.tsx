@@ -13,6 +13,7 @@ import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "/firebase/firebaseconf";
 
 import { useEffect, useState } from "react";
+import router from "next/router";
 
 const Login: NextPage = () => {
   const context = useThemeContext();
@@ -26,10 +27,15 @@ const Login: NextPage = () => {
     }
     console.log(user);
   }, [user, loading]);
+
+  const login = async () => {
+    await signInWithEmailAndPassword(email, password);
+    router.push("dashboard");
+  };
   return (
     <div className={styles.wrapper}>
       <Head>
-        <title>Login</title>
+        <title>Prijava - securePi</title>
         <meta name="description" content="Login website" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -95,10 +101,10 @@ const Login: NextPage = () => {
                 outline
                 block
                 onClick={() => {
-                  signInWithEmailAndPassword(email, password);
+                  login();
                 }}
               >
-                <b>Registriraj</b>
+                <b>Prijava</b>
               </Button>
               <p>
                 <br />

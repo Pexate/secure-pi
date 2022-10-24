@@ -25,6 +25,7 @@
     "@types/rebass": "^4.0.10",
     "eslint": "8.23.1",
     "eslint-config-next": "12.3.0",
+    "nanoid": "^4.0.0",
     "typescript": "4.8.3"
   }
 }

@@ -13,6 +13,9 @@ const nextConfig = {
     APPID: process.env.APPID,
     MEASUREMENTID: process.env.MEASUREMENTID,
   },
+  resolve: {
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+  },
 };
 
 module.exports = nextConfig;

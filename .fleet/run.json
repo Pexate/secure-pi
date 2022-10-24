@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "name": "Create development server",
+      "type": "command",
+      "program": "npm",
+      "args": ["run", "dev"]
+    }
+  ]
+}

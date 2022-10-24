@@ -20,3 +20,7 @@ export const updateUserProfile: Function = async (payload: { any: any }) => {
   await updateProfile(auth.currentUser, payload);
   return auth.currentUser;
 };
+
+export const logOut = async () => {
+  await signOut(auth);
+};
