@@ -17,9 +17,10 @@ a {
   box-sizing: border-box;
   transition: 0.2s ease;
 }
-
+/*
 @media (prefers-color-scheme: dark) {
   * {
     color: white;
   }
 }
+*/

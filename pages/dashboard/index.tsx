@@ -14,6 +14,9 @@ import { Button } from "shards-react";
 
 import { logOut } from "/firebase/firebaseMethods";
 
+import { InfinitySpin } from "react-loader-spinner";
+//import "/node_modules/react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+
 const Dashboard: NextPage = () => {
   const context = useThemeContext();
   const [user, loading, error] = useAuthState(auth);
@@ -23,8 +26,10 @@ const Dashboard: NextPage = () => {
     router.push("/");
   };
   useEffect(() => {
-    //if (user === null) router.push("/");
+    console.log(loading);
+    if (user === null && loading === false) router.push("/");
   }, [user, loading, error]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -35,7 +40,9 @@ const Dashboard: NextPage = () => {
 
       <main
         className={styles.main}
-        style={{ background: context.theme === "dark" ? "#212121" : "#ffffff" }}
+        style={{
+          background: context.theme === "dark" ? "#212121" : "#ffffff",
+        }}
       >
         <CustomNavbar />
         <div
@@ -50,18 +57,25 @@ const Dashboard: NextPage = () => {
               color: context.theme === "dark" ? "white" : "",
             }}
           >
-            <b style={{ fontSize: 42, marginRight: 8 }}>
-              Prijavljen kao {user?.displayName}
-            </b>{" "}
-            <span style={{ fontSize: 20 }}>({user?.email})</span>
-            <Button
-              theme={context.theme === "dark" ? "white" : "dark"}
-              outline
-              block
-              onClick={() => logOutClick()}
-            >
-              <b>Odjavi se</b>
-            </Button>
+            {loading || user === null ? (
+              <Loading />
+            ) : (
+              <>
+                <b style={{ fontSize: 42, marginRight: 8 }}>
+                  Prijavljen kao {user?.displayName}
+                </b>{" "}
+                <span style={{ fontSize: 20 }}>({user?.email})</span>
+                <Button
+                  theme={context.theme === "dark" ? "white" : "dark"}
+                  outline
+                  block
+                  onClick={() => logOutClick()}
+                >
+                  <b>Odjavi se</b>
+                </Button>
+                <b>Prethodno povezani Pi-evi</b>{" "}
+              </>
+            )}
           </div>
         </div>
       </main>
@@ -75,6 +89,18 @@ const Dashboard: NextPage = () => {
           Tonči Crljen &copy; 2022{" "}
         </a>
       </footer>
+    </div>
+  );
+};
+
+export const Loading = () => {
+  const context = useThemeContext();
+  return (
+    <div>
+      <InfinitySpin
+        width="200"
+        color={context.theme === "dark" ? "#ffffff" : "#232323"}
+      />
     </div>
   );
 };

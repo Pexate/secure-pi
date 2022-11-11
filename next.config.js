@@ -12,6 +12,7 @@ const nextConfig = {
     MESSAGINGSENDERID: process.env.MESSAGINGSENDERID,
     APPID: process.env.APPID,
     MEASUREMENTID: process.env.MEASUREMENTID,
+    VAPIDKEY: process.env.VAPIDKEY,
   },
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],

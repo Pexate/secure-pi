@@ -45,6 +45,30 @@
   position: relative;
 }
 
+.watch_video {
+  height: 50vw;
+  max-width: 90vw;
+  position: relative;
+  z-index: 0;
+  margin-bottom: 40px;
+}
+
+.watch_video_dark {
+  box-shadow: 0 0 25px 0 #000000;
+}
+
+.watch_video_light {
+  box-shadow: 0 0 25px 0 rgba(255, 255, 255, 0.1);
+}
+
+.watch_video_id {
+  font-family: Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 24px;
+  margin-right: 12px;
+  margin-bottom: 0;
+}
+
 .watch_wrapper {
   width: 90vw;
   display: flex;
@@ -58,23 +82,20 @@
   justify-content: center;
 }
 
-.id_input {
-  border: 1px solid white !important;
+.display_none {
+  display: none;
 }
 
-.id_input:focus {
-  border: 1px solid white !important;
-  box-shadow: 0 0 6px 0px white;
-}
-
-.stream_video {
-  margin-bottom: 20px;
-}
-
-.stream_video_dark {
-  box-shadow: 0 0 25px 0 #000000;
-}
-
-.stream_video_light {
-  box-shadow: 0 0 25px 0 rgba(255, 255, 255, 0.1);
+.watch_video_id_container {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 10px 10px;
+  padding: 10px;
 }

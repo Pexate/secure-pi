@@ -18,6 +18,7 @@ import {
   setDoc,
   onSnapshot,
   addDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "./firebaseconf";
 
@@ -35,15 +36,19 @@ const servers = {
 const connect = async (id: string, document) => {
   const pc: RTCPeerConnection = new RTCPeerConnection(servers);
   const streamVideo = document.getElementById("streamVideo");
-  const webcamVideo = document.getElementById("watchVideo");
   let remoteStream = new MediaStream();
-
+  /*
   pc.ontrack = (event) => {
     event.streams[0].getTracks().forEach((track) => {
       remoteStream.addTrack(track);
     });
   };
-
+*/
+  pc.ontrack = (event) => {
+    event.streams[0].getTracks().forEach((track) => {
+      remoteStream.addTrack(track, event.streams[0]);
+    });
+  };
   streamVideo.srcObject = remoteStream;
 
   const callDoc = doc(db, "calls", id);
@@ -91,10 +96,14 @@ const connect = async (id: string, document) => {
   });
 };
 
-const stream = async (document, videoStream) => {
+const stream = async (
+  document: Document,
+  videoStream: MediaStream,
+  id = nanoid()
+) => {
   const pc: RTCPeerConnection = new RTCPeerConnection(servers);
-  const streamVideo = document.getElementById("streamVideo");
   const webcamVideo = document.getElementById("watchVideo");
+  const videoId = document.getElementById("watch_video_id");
   // Phase 1: Initiate camera feed
   console.log(videoStream);
   videoStream.getTracks().forEach((track: MediaStreamTrack) => {
@@ -107,7 +116,6 @@ const stream = async (document, videoStream) => {
   };
   */
   // Phase 2: Create the peer connection offer
-  const id = nanoid();
 
   const callDoc = doc(db, "calls", id);
   const offerCandidates: CollectionReference<DocumentData> = collection(
@@ -155,8 +163,21 @@ const stream = async (document, videoStream) => {
     });
   });
 
+  videoId.innerHTML = `Pi kod: <b>${id}<b>`;
+  document.getElementById("copy_button").onclick = () => {
+    navigator.clipboard.writeText(id);
+  };
   webcamVideo.srcObject = videoStream;
   console.log(id);
+  //listenForAnswer();
+  //addCandidateOnAnswer();
+
+  pc.oniceconnectionstatechange = async (event) => {
+    if (pc.iceConnectionState === "disconnected") {
+      await deleteDoc(callDoc);
+      await stream(document, videoStream, id);
+    }
+  };
 };
 
 export { stream, connect };

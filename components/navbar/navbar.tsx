@@ -33,6 +33,7 @@ import { useThemeContext } from "/context/context";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "/firebase/firebaseconf";
 import router from "next/router";
+import { connectFirestoreEmulator } from "firebase/firestore";
 
 const CustomNavbar: FunctionComponent = () => {
   const [dropdown, setDropdown] = useState(false);
@@ -149,6 +150,14 @@ const CustomNavbar: FunctionComponent = () => {
                 justifyContent: "center",
               }}
               onClick={context.changeTheme}
+              /*
+              onMouseOver={(e) => {
+                e.target.style.filter = "invert(60%)";
+              }}
+              onMouseOut={(e) => {
+                e.target.style.filter = "invert(0%)";
+              }}*
+              */
             >
               <Image
                 src="/moon.png"

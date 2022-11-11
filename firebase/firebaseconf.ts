@@ -2,11 +2,13 @@ import type { FirebaseApp } from "firebase/app";
 import type { Analytics } from "firebase/analytics";
 import type { Auth } from "firebase/auth";
 import type { Firestore } from "firebase/firestore";
+import type { Messaging } from "firebase/messaging";
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { GoogleAuthProvider, getAuth } from "firebase/auth";
+import { getMessaging, getToken } from "firebase/messaging";
 
 const firebaseConfig: object = {
   apiKey: process.env.APIKEY,
@@ -22,8 +24,9 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 //const analytics: Analytics = getAnalytics(app);
 const db: Firestore = getFirestore(app);
 const auth: Auth = getAuth(app);
+const messaging = ""; //: Messaging = getMessaging(app);
 
-export { app, db, auth /*analytics*/ };
+export { app, db, auth, messaging };
 
 //signInWithPopup,
 //signInWithEmailAndPassword,

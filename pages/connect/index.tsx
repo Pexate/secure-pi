@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import styles from "/styles/Connect.module.css";
 import CustomNavbar from "/components/navbar/navbar";
 
@@ -8,7 +7,15 @@ import { useThemeContext } from "/context/context";
 
 import { stream, connect } from "/firebase/webrtc";
 
-import { VideoHTMLAttributes, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import {
+  InputGroup,
+  InputGroupText,
+  InputGroupAddon,
+  FormInput,
+  Button,
+} from "shards-react";
 
 const Home: NextPage = () => {
   const context = useThemeContext();
@@ -40,38 +47,45 @@ const Home: NextPage = () => {
       >
         <CustomNavbar />
         <div
-          className={
+          className={`${
             context.theme === "dark"
               ? styles.dark_wrapper
               : styles.light_wrapper
-          }
+          } ${styles.wrapper}`}
         >
-          <div className={styles.stream_wrapper}>
-            <video ref={videoRef} id="watchVideo"></video>
-            <button
-              onClick={() => {
-                (async () => {
-                  let videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: true,
-                  });
-                  stream(document, videoStream);
-                })();
-              }}
-            >
-              Stream video output
-            </button>
-          </div>
           <div className={styles.watch_wrapper}>
-            <video ref={streamRef} id="streamVideo"></video>
-            <input
-              onChange={(e) => {
-                setId(e.target.value);
-              }}
-            ></input>
-            <button onClick={() => connect(id, document) /*</div>connect(id)*/}>
-              Watch stream
-            </button>
+            <video
+              ref={streamRef}
+              id="streamVideo"
+              className={`${styles.stream_video} ${
+                context.theme === "dark"
+                  ? styles.stream_video_light
+                  : styles.stream_video_dark
+              }`}
+            ></video>
+            <InputGroup>
+              <FormInput
+                className={styles.id_input}
+                onChange={(e) => {
+                  setId(e.target.value);
+                }}
+                placeholder="Pi id"
+                size="lg"
+                style={
+                  context.theme === "dark"
+                    ? { color: "white", background: "#232323" }
+                    : {}
+                }
+              />
+              <InputGroupAddon type="append">
+                <Button
+                  theme={context.theme === "dark" ? "light" : "dark"}
+                  onClick={() => connect(id, document)}
+                >
+                  Gledaj
+                </Button>
+              </InputGroupAddon>
+            </InputGroup>
           </div>
         </div>
       </main>
