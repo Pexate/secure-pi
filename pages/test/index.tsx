@@ -20,8 +20,6 @@ import {
 
 import { useAuthState } from "react-firebase-hooks/auth";
 
-import { useRouter } from "next/router";
-
 const Home: NextPage = () => {
   const context = useThemeContext();
   const [id, setId] = useState(null);
@@ -37,24 +35,6 @@ const Home: NextPage = () => {
     setCameraOutput(obj.stream);
   };
   */
-
-  const router = useRouter();
-  //const { pid } = router.query;
-
-  useEffect(() => {
-    //console.log(pid);
-    //if (pid) {
-    //  console.log(pid);
-    //  (async () => await connect(pid, document, setInfo, user?.uid))();
-    //  if (textInput.current) {
-    //    textInput.current.value = pid;
-    //  }
-    //}
-  }, []);
-
-  useEffect(() => {
-    console.log(info);
-  }, [info]);
 
   return (
     <div className={styles.container}>
@@ -89,7 +69,6 @@ const Home: NextPage = () => {
                   ? styles.stream_video_light
                   : styles.stream_video_dark
               }
-              id="streamVideo"
               autoPlay
             ></video>
             <InputGroup className={info ? styles.display_none : ""}>

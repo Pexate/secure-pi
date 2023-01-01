@@ -14,9 +14,6 @@ const nextConfig = {
     MEASUREMENTID: process.env.MEASUREMENTID,
     VAPIDKEY: process.env.VAPIDKEY,
   },
-  resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
-  },
 };
 
 module.exports = nextConfig;

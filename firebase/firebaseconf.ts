@@ -9,6 +9,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { GoogleAuthProvider, getAuth } from "firebase/auth";
 import { getMessaging, getToken } from "firebase/messaging";
+import { FirebaseStorage, getStorage } from "firebase/storage";
 
 const firebaseConfig: object = {
   apiKey: process.env.APIKEY,
@@ -25,8 +26,9 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const db: Firestore = getFirestore(app);
 const auth: Auth = getAuth(app);
 const messaging = ""; //: Messaging = getMessaging(app);
+const storage: FirebaseStorage = getStorage(app);
 
-export { app, db, auth, messaging };
+export { app, db, auth, messaging, storage };
 
 //signInWithPopup,
 //signInWithEmailAndPassword,

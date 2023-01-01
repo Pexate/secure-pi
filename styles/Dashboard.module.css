@@ -42,3 +42,127 @@
   align-items: center;
   justify-content: center;
 }
+
+.pi_container {
+  flex-direction: column;
+  justify-content: space-between;
+  display: flex;
+  flex-grow: 0;
+  width: auto;
+  padding: 15px 30px 15px 15px;
+  border-radius: 20px;
+  height: 160px;
+  margin-right: 15px;
+  overflow: hidden;
+  min-width: 200px;
+}
+
+.pi_container_dark {
+  background-color: #1a1a1a;
+}
+
+.pi_container_light {
+  background-color: #eeeeee;
+}
+
+.pi_container_container {
+  display: flex;
+  flex-direction: row;
+  width: 90vw;
+  overflow-x: auto;
+  margin-top: 8px;
+  padding: 8px;
+}
+
+.pi_id {
+  margin: 0;
+}
+.pi_name {
+  margin: 0;
+  font-size: 24px;
+}
+
+.pi_container_top {
+}
+
+.recently_connected_pis {
+  margin-top: 32px;
+}
+
+.pi_connect_button {
+  width: calc(100% + 15px);
+}
+
+.pi_status_indicator {
+  width: calc(100% + 45px);
+  height: 20px;
+  margin-left: -16px;
+  margin-top: -16px;
+  text-align: center;
+}
+
+.avatar_upload_container {
+  display: flex;
+  position: absolute;
+  height: 650px;
+  width: 550px;
+  min-width: 400px !important;
+  min-height: 600px !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.file_input::-webkit-file-upload-button {
+  background: none;
+  /*border: 1px solid white;*/
+  border-radius: 5px;
+  padding: 8px;
+  /*color: white;*/
+}
+
+.file_input {
+  font-family: "Chivo", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif !important;
+  font-weight: 200;
+}
+
+.exit_button {
+  position: absolute;
+  top: 2%;
+  left: 93%;
+  z-index: 99;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: red;
+  color: white;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom_file_upload {
+  display: inline-block;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 200;
+  border-radius: 6px;
+}
+
+.upload_buttons_container {
+  display: flex;
+  padding-top: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 400px;
+}

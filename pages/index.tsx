@@ -6,8 +6,19 @@ import CustomNavbar from "/components/navbar/navbar";
 
 import { useThemeContext } from "/context/context";
 
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "/firebase/firebaseconf";
+
+import { useEffect } from "react";
+import router from "next/router";
+
 const Home: NextPage = () => {
   const context = useThemeContext();
+  const [user, loading, error] = useAuthState(auth);
+  useEffect(() => {
+    console.log(loading);
+    if (user && loading === false) router.push("/dashboard");
+  }, [user, loading, error]);
   return (
     <div className={styles.container}>
       <Head>

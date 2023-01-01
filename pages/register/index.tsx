@@ -10,11 +10,16 @@ import { Form, FormInput, FormGroup, Button } from "shards-react";
 
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "/firebase/firebaseconf";
-import { updateUserProfile } from "/firebase/firebaseMethods";
+import {
+  updateUserProfile,
+  setRegistrationInfo,
+} from "/firebase/firebaseMethods";
 
 import { useEffect, useState } from "react";
 
 import Link from "next/link";
+
+import { useRouter } from "next/router";
 
 const Register: NextPage = () => {
   const context = useThemeContext();
@@ -23,18 +28,23 @@ const Register: NextPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    if (loading) {
-      console.log("loading");
+    if (user) router.push("/dashboard");
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      updateUserProfile({ displayName: username });
+      setRegistrationInfo(username, user.user.uid);
     }
-    console.log(user);
-  }, [user, loading]);
+  }, [user]);
 
   const registerClick: Function = async () => {
+    console.log(email, password);
     await createUserWithEmailAndPassword(email, password);
-    const _user = await updateUserProfile({ displayName: username });
-    console.log(_user);
+    //const _user = await updateUserProfile({ displayName: username });
   };
 
   return (

@@ -4,31 +4,66 @@ import Image from "next/image";
 import router from "next/router";
 import styles from "/styles/Dashboard.module.css";
 import CustomNavbar from "/components/navbar/navbar";
+import Loading from "/components/loading/loading";
 
 import { useThemeContext } from "/context/context";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase/firebaseconf";
+import { auth, storage } from "/firebase/firebaseconf";
 
-import { Button } from "shards-react";
+import { Badge, Button, Card } from "shards-react";
 
-import { logOut } from "/firebase/firebaseMethods";
+import { logOut, setProfilePicture } from "/firebase/firebaseMethods";
 
-import { InfinitySpin } from "react-loader-spinner";
-//import "/node_modules/react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import { useRouter } from "next/router";
+
+import {
+  getRecentPis,
+  checkIfBlacklisted,
+  addToBlacklist,
+  removeFromBlacklist,
+} from "/firebase/webrtc";
+
+import ReactCrop from "react-image-crop";
+import type { Crop, PixelCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import { createURLFromCrop, centerAspectCrop } from "./uploadPictureCrop";
 
 const Dashboard: NextPage = () => {
   const context = useThemeContext();
   const [user, loading, error] = useAuthState(auth);
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [photoURL, setPhotoURL] = useState(
+    "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
+  );
+  const [image, setImage] = useState("http://example.com/initialimage.jpg");
+  const [shown, setShown] = useState(false);
+  const [pis, setPis] = useState(null);
+
+  const [imgSrc, setImgSrc] = useState("");
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+
+  const router = useRouter();
 
   const logOutClick = async () => {
     await logOut();
     router.push("/");
   };
   useEffect(() => {
-    console.log(loading);
-    if (user === null && loading === false) router.push("/");
-  }, [user, loading, error]);
+    if ((user === null && loading === false) || error) router.push("/");
+    if (user?.photoURL) setPhotoURL(user.photoURL);
+
+    (async () => {
+      let a = await checkIfBlacklisted(
+        "Aax3WfLmvoU9iOgtfqGVdizc5rt2",
+        "192.168.1.1"
+      );
+    })();
+    getRecentPis(user?.uid, setPis);
+  }, [user, loading, error, shown]);
 
   return (
     <div className={styles.container}>
@@ -61,6 +96,27 @@ const Dashboard: NextPage = () => {
               <Loading />
             ) : (
               <>
+                <button
+                  onClick={() => {
+                    setShown(!shown);
+                  }}
+                  style={{
+                    border: 0,
+                    padding: 0,
+                    width: 65,
+                    height: 65,
+                  }}
+                >
+                  <img
+                    src={photoURL}
+                    width={65}
+                    height={65}
+                    style={{
+                      marginBottom: 8,
+                      marginRight: 8,
+                    }}
+                  />
+                </button>
                 <b style={{ fontSize: 42, marginRight: 8 }}>
                   Prijavljen kao {user?.displayName}
                 </b>{" "}
@@ -73,7 +129,155 @@ const Dashboard: NextPage = () => {
                 >
                   <b>Odjavi se</b>
                 </Button>
-                <b>Prethodno povezani Pi-evi</b>{" "}
+                <div
+                  className={styles.avatar_upload_container}
+                  style={{
+                    opacity: shown ? 1 : 0,
+                    background:
+                      context.theme === "dark" ? "#1d1d1d" : "#ededed",
+                    boxShadow:
+                      context.theme === "dark"
+                        ? "0px 0px 50px 2px rgba(255, 255, 255, 0.25);"
+                        : "0px 0px 50px 2px black",
+                  }}
+                >
+                  <button
+                    className={styles.exit_button}
+                    onClick={() => setShown(false)}
+                  >
+                    x
+                  </button>
+                  <b style={{ fontSize: 35 }}>Promjeni profilu sliku</b>
+                  {!!imgSrc ? (
+                    <ReactCrop
+                      crop={crop}
+                      onChange={(_, percentCrop) => setCrop(percentCrop)}
+                      onComplete={(c) => setCompletedCrop(c)}
+                      aspect={1}
+                      style={{ maxHeight: 600, maxWidth: 400 }}
+                    >
+                      <img
+                        ref={imgRef}
+                        alt="Crop me"
+                        src={imgSrc}
+                        onLoad={(e) =>
+                          setCrop(
+                            centerAspectCrop(
+                              e.currentTarget.width,
+                              e.currentTarget.height,
+                              1
+                            )
+                          )
+                        }
+                      />
+                    </ReactCrop>
+                  ) : (
+                    ""
+                  )}
+                  <div className={styles.upload_buttons_container}>
+                    <label
+                      htmlFor="file-upload"
+                      className={styles.custom_file_upload}
+                      style={{
+                        border:
+                          context.theme === "dark"
+                            ? "1px solid #ffffff"
+                            : "1px solid #232323",
+                      }}
+                    >
+                      Odaberi sliku
+                    </label>
+                    <input
+                      className={`${styles.file_input} ${
+                        context.theme === "dark"
+                          ? styles.file_input_dark
+                          : styles.file_input_light
+                      }`}
+                      id="file-upload"
+                      style={{ opacity: 0, width: 0 }}
+                      type="file"
+                      onChange={(e) => {
+                        setSelectedFile(e.target.files[0]);
+                        const reader = new FileReader();
+                        reader.readAsDataURL(e.target.files[0]);
+                        reader.onload = () => {
+                          setImgSrc(reader.result?.toString() || "");
+                        };
+                      }}
+                    />
+                    <input
+                      id="file-upload"
+                      style={{ display: "none" }}
+                      type="file"
+                    />
+                    <Button
+                      theme={context.theme === "dark" ? "white" : "dark"}
+                      outline
+                      onClick={async () => {
+                        const cropURL = await createURLFromCrop(
+                          imgRef.current,
+                          completedCrop
+                        );
+
+                        if (cropURL) {
+                          const url = await setProfilePicture(cropURL, user);
+                          setPhotoURL(url);
+                        }
+                      }}
+                    >
+                      Promjeni
+                    </Button>
+                  </div>
+                </div>
+                <div className={styles.recently_connected_pis}>
+                  <b style={{ fontSize: 24, marginRight: 8 }}>
+                    Prethodno povezani Pi-evi
+                  </b>{" "}
+                  <div className={styles.pi_container_container}>
+                    {pis !== null
+                      ? pis.recent.map((e) => {
+                          return (
+                            <div
+                              className={`${styles.pi_container} ${
+                                context.theme === "dark"
+                                  ? styles.pi_container_dark
+                                  : styles.pi_container_light
+                              }`}
+                            >
+                              <div
+                                className={styles.pi_status_indicator}
+                                style={{
+                                  backgroundColor:
+                                    e.status === "online" ? "green" : "#aa2211",
+                                }}
+                              >
+                                {e.status === "online"
+                                  ? "Aktivan"
+                                  : "Neaktivan"}
+                              </div>
+                              <div className={styles.pi_container_top}>
+                                <p className={styles.pi_name}>
+                                  <b>{e.name}</b>
+                                </p>
+                                <p className={styles.pi_id}>{e}</p>
+                              </div>
+                              <Button
+                                disabled={e.status === "offline"}
+                                theme={
+                                  context.theme === "dark" ? "light" : "dark"
+                                }
+                                pill
+                                className={styles.pi_connect_button}
+                                onClick={() => router.push(`/connect/${e.id}`)}
+                              >
+                                Poveži
+                              </Button>
+                            </div>
+                          );
+                        })
+                      : ""}
+                  </div>
+                </div>
               </>
             )}
           </div>
@@ -89,18 +293,20 @@ const Dashboard: NextPage = () => {
           Tonči Crljen &copy; 2022{" "}
         </a>
       </footer>
-    </div>
-  );
-};
-
-export const Loading = () => {
-  const context = useThemeContext();
-  return (
-    <div>
-      <InfinitySpin
-        width="200"
-        color={context.theme === "dark" ? "#ffffff" : "#232323"}
-      />
+      <button
+        onClick={() => {
+          addToBlacklist(user?.uid, "192.168.1.2");
+        }}
+      >
+        Dodaj
+      </button>
+      <button
+        onClick={() => {
+          removeFromBlacklist(user?.uid, "192.168.1.1");
+        }}
+      >
+        Izbriši
+      </button>
     </div>
   );
 };

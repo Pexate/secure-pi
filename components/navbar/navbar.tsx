@@ -47,11 +47,9 @@ const CustomNavbar: FunctionComponent = () => {
 
   const changeProfileNameColor = () => {
     setProfileNameColor(!profileNameColor);
-    console.log(profileNameColor, context.theme);
   };
 
   useEffect(() => {
-    console.log(localStorage.getItem("theme"), context.theme);
     if (
       localStorage.getItem("theme") &&
       context.theme !== localStorage.getItem("theme")
@@ -77,45 +75,81 @@ const CustomNavbar: FunctionComponent = () => {
       </NavbarBrand>
 
       <Collapse navbar>
-        <Nav navbar>
-          <Link
-            href="/register"
-            className={styles.navlink}
-            style={{ textDecoration: "none" }}
-          >
-            <NavLink style={{ cursor: "pointer" }}>Registriraj se</NavLink>
-          </Link>
-          <Dropdown open={dropdown} toggle={toggleDropdown}>
-            <DropdownToggle nav caret>
-              Dropdown
-            </DropdownToggle>
-            <DropdownMenu
-              className={context.theme === "dark" ? styles.dropdown_dark : ""}
-            >
-              <DropdownItem
-                className={
-                  context.theme === "dark" ? styles.dropdown_item_dark : ""
-                }
-              >
-                Action
-              </DropdownItem>
-              <DropdownItem
-                className={
-                  context.theme === "dark" ? styles.dropdown_item_dark : ""
-                }
-              >
-                Another action
-              </DropdownItem>
-              <DropdownItem
-                className={
-                  context.theme === "dark" ? styles.dropdown_item_dark : ""
-                }
-              >
-                Something else here
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </Nav>
+        {!loading ? (
+          <Nav navbar>
+            {user ? (
+              <>
+                <Link
+                  href="/pi-setup"
+                  className={styles.navlink}
+                  style={{ textDecoration: "none" }}
+                >
+                  <NavLink style={{ cursor: "pointer" }}>Prenosi</NavLink>
+                </Link>
+                <Link
+                  href="/connect"
+                  className={styles.navlink}
+                  style={{ textDecoration: "none" }}
+                >
+                  <NavLink style={{ cursor: "pointer" }}>Gledaj</NavLink>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className={styles.navlink}
+                  style={{ textDecoration: "none" }}
+                >
+                  <NavLink style={{ cursor: "pointer" }}>
+                    Registriraj se
+                  </NavLink>
+                </Link>
+                <Dropdown open={dropdown} toggle={toggleDropdown}>
+                  <DropdownToggle nav caret>
+                    Dropdown
+                  </DropdownToggle>
+                  <DropdownMenu
+                    className={
+                      context.theme === "dark" ? styles.dropdown_dark : ""
+                    }
+                  >
+                    <DropdownItem
+                      className={
+                        context.theme === "dark"
+                          ? styles.dropdown_item_dark
+                          : ""
+                      }
+                    >
+                      Action
+                    </DropdownItem>
+                    <DropdownItem
+                      className={
+                        context.theme === "dark"
+                          ? styles.dropdown_item_dark
+                          : ""
+                      }
+                    >
+                      Another action
+                    </DropdownItem>
+                    <DropdownItem
+                      className={
+                        context.theme === "dark"
+                          ? styles.dropdown_item_dark
+                          : ""
+                      }
+                    >
+                      Something else here
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </>
+            )}
+          </Nav>
+        ) : (
+          ""
+        )}
+
         <Nav navbar className="ml-auto">
           <NavItem>
             {user ? (
