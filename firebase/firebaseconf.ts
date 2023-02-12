@@ -25,10 +25,10 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 //const analytics: Analytics = getAnalytics(app);
 const db: Firestore = getFirestore(app);
 const auth: Auth = getAuth(app);
-const messaging = ""; //: Messaging = getMessaging(app);
+//getMessaging(app); //: Messaging = getMessaging(app);
 const storage: FirebaseStorage = getStorage(app);
 
-export { app, db, auth, messaging, storage };
+export { app, db, auth, storage };
 
 //signInWithPopup,
 //signInWithEmailAndPassword,

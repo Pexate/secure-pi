@@ -1,16 +1,10 @@
-import type { FirebaseApp } from "firebase/app";
-import type { Analytics } from "firebase/analytics";
-import type { Auth } from "firebase/auth";
 import {
-  Firestore,
   DocumentReference,
   CollectionReference,
   DocumentData,
   Unsubscribe,
-  getDocs,
   DocumentSnapshot,
   updateDoc,
-  runTransaction,
 } from "firebase/firestore";
 import {
   doc,
@@ -20,11 +14,25 @@ import {
   onSnapshot,
   addDoc,
   deleteDoc,
+  deleteField,
 } from "firebase/firestore";
 import { db } from "./firebaseconf";
 
-import { nanoid } from "nanoid";
-import { start } from "repl";
+import type { DataConnection, Peer } from "peerjs";
+
+import { initializeApp } from "firebase/app";
+
+const firebaseConfig: object = {
+  apiKey: process.env.APIKEY,
+  authDomain: process.env.AUTHDOMAIN,
+  projectId: process.env.PROJECTID,
+  storageBucket: process.env.STORAGEBUCKET,
+  messagingSenderId: process.env.MESSAGINGSENDERID,
+  appId: process.env.APPID,
+  measurementId: process.env.MEASUREMENTID,
+};
+
+initializeApp(firebaseConfig);
 
 const servers = {
   iceServers: [
@@ -41,24 +49,50 @@ const connect = async (
   setInfo: Function,
   userId: string
 ) => {
+  const { Peer } = await import("peerjs");
   const pc: RTCPeerConnection = new RTCPeerConnection(servers);
-  const streamVideo = document.getElementById("streamVideo");
-  let remoteStream = new MediaStream();
-  /*
-  pc.ontrack = (event) => {
-    event.streams[0].getTracks().forEach((track) => {
+  const streamVideo: HTMLElement | null =
+    document.getElementById("streamVideo");
+  let remoteStream: MediaStream = new MediaStream();
+
+  const peer: Peer = new Peer(userId);
+  console.log(peer);
+
+  peer.on("open", () => {
+    const conn: DataConnection = peer.connect(id + "_H");
+    console.log(conn);
+
+    conn.on("open", () => {
+      console.log("open");
+      conn.on("data", async (data: any) => {
+        console.log(data);
+        const dataDocRef = doc(db, "users", data.id);
+        const dataDoc = await getDoc(dataDocRef);
+
+        if (dataDoc.exists()) {
+          console.log(dataDoc.data());
+          setInfo(dataDoc.data());
+        }
+        if (streamVideo) {
+          streamVideo.style.width = `${data.width}px`;
+          streamVideo.style.height = `${data.height}px`;
+        }
+      });
+
+      conn.send(userId);
+    });
+  });
+
+  pc.ontrack = (event): void => {
+    event.streams[0].getTracks().forEach((track): void => {
       remoteStream.addTrack(track);
     });
   };
-*/
-  pc.ontrack = (event) => {
-    event.streams[0].getTracks().forEach((track) => {
-      remoteStream.addTrack(track); //, event.streams[0]
-    });
-  };
-  streamVideo.srcObject = remoteStream;
 
-  const callDoc = doc(db, "calls", id);
+  //@ts-ignore
+  if (streamVideo) streamVideo.srcObject = remoteStream;
+
+  const callDoc: DocumentReference = doc(db, "calls", id);
   const offerCandidates: CollectionReference<DocumentData> = collection(
     callDoc,
     "offerCandidates"
@@ -68,139 +102,91 @@ const connect = async (
     "answerCandidates"
   );
 
-  pc.onicecandidate = async (event) => {
+  pc.onicecandidate = async (event): Promise<void> => {
     event.candidate &&
       (await addDoc(answerCandidates, event.candidate.toJSON()));
   };
 
-  const callData = (await getDoc(callDoc)).data();
+  const callData: DocumentData | undefined = (await getDoc(callDoc)).data();
+  if (!callData) return;
 
-  const offerDescription = callData.offer;
+  const offerDescription: RTCSessionDescriptionInit = callData.offer;
   await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
   const answerDescription = await pc.createAnswer();
   await pc.setLocalDescription(answerDescription);
 
-  const answer = {
+  const answer: { type: string; sdp: string | undefined } = {
     type: answerDescription.type,
     sdp: answerDescription.sdp,
   };
 
   await updateDoc(callDoc, { answer });
 
-  const addIceCandidate = onSnapshot(offerCandidates, (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      if (change.type == "added") {
-        const data = change.doc.data();
-        const candidate = new RTCIceCandidate(data);
-        console.log("DESC:", pc.remoteDescription);
-        if (candidate) pc.addIceCandidate(candidate);
-      }
-    });
-  });
+  const addIceCandidate: Unsubscribe = onSnapshot(
+    offerCandidates,
+    (snapshot) => {
+      snapshot.docChanges().forEach((change): void => {
+        if (change.type == "added") {
+          const data: DocumentData = change.doc.data();
+          const candidate: RTCIceCandidate = new RTCIceCandidate(data);
+          candidate && pc.addIceCandidate(candidate);
+        }
+      });
+    }
+  );
 
   const recentDoc = doc(db, "recent", userId);
   const recentDocSnapshot = await getDoc(recentDoc);
 
-  /*
-  pc.addEventListener("datachannel", (event) => {
-    dataChannel = event.channel;
-    dataChannel.onmessage = (e) => {
-      console.log("onmessage");
-
-      message = JSON.parse(e.data);
-      console.log("message", message);
-      setInfo(message);
-      if (recentDocSnapshot.exists()) {
-        updateDoc(recentDoc, { name: message.name });
-      } else {
-        setDoc(recentDoc, { recent: [id], name: message.name });
-      }
-    };
-  });
-  */
-  /*
-  let sendChannel = null;
-  pc.ondatachannel = (e) => {
-    console.log("hello data channelgge");
-    sendChannel = e.channel;
-    sendChannel.onmessage = handleRecieveMessage;
-  };
-
-  const handleRecieveMessage = (e) => {
-    console.log(e.data);
-  };
-
-  pc.ondatachannel = function (event) {
-    let receiveChannel = event.channel;
-    receiveChannel.onmessage = function (event) {
-      alert(event.data);
-    };
-  };
-  */
-  const dataChannel = pc.createDataChannel("sendChannel");
-
-  // Add an event listener for the message event
-  dataChannel.addEventListener("message", (event) => {
-    console.log(`Received message: ${event.data}`);
-  });
-
-  if (recentDocSnapshot.exists()) {
-    const recentConnections = recentDocSnapshot.data().recent;
-    if (id in recentConnections) {
-      for (let i = 0; i < recentConnections.length; i++) {
-        if (recentConnections[i] == id) {
-          recentConnections.splice(i, 1);
-        }
-      }
-    }
-
-    recentConnections.push(id);
-
-    updateDoc(recentDoc, { recent: recentConnections });
-  } else {
+  if (!recentDocSnapshot.exists())
     await setDoc(recentDoc, { recent: [id], name: "" });
+  else {
+    const recentConnections: Array<string> = recentDocSnapshot.data().recent;
+
+    if (!recentConnections.includes(id)) {
+      recentConnections.push(id);
+
+      updateDoc(recentDoc, { recent: recentConnections });
+    }
   }
 
   try {
   } catch (e) {
     console.log("failed");
   }
-  /*
-  await runTransaction(db, async (transaction) => {
-      const recent = await transaction.get(recentDoc);
-      if (!recent.exists()) {
-        await setDoc(recentDoc, { recent: [id] });
-        return;
-      }
-
-      const recentConnections = recent.data().recent;
-      recentConnections.push(id);
-
-      transaction.update(recentDoc, { recent: recentConnections })
-    */
 };
 
 const stream = async (
   document: Document,
   videoStream: MediaStream,
-  id = nanoid()
+  id: string
 ) => {
-  const pc: RTCPeerConnection = new RTCPeerConnection(servers);
+  const { Peer } = await import("peerjs");
+  let pc: RTCPeerConnection = new RTCPeerConnection(servers);
+  const peer: Peer = new Peer(id + "_H");
+  const { width, height } = videoStream.getVideoTracks()[0].getSettings();
 
-  const webcamVideo = document.getElementById("watchVideo");
-  const videoId = document.getElementById("watch_video_id");
-  // Phase 1: Initiate camera feed
-  videoStream.getTracks().forEach((track: MediaStreamTrack) => {
+  const webcamVideo: HTMLElement | null = document.getElementById("watchVideo");
+  const videoId: HTMLElement | null = document.getElementById("watch_video_id");
+
+  videoStream.getTracks().forEach((track: MediaStreamTrack): void => {
     pc.addTrack(track, videoStream);
   });
 
-  /*
-  pc.ontrack = (event: RTCTrackEvent) => {
-    event.streams[0].getTracks().forEach((track: MediaStreamTrack) => {});
-  };
-  */
-  // Phase 2: Create the peer connection offer
+  //pc.onsignalingstatechange = (event) => {
+  //  console.log(pc.signalingState, event);
+  //};
+
+  const copy_button = document.getElementById("copy_button");
+  if (videoId && copy_button && webcamVideo) {
+    videoId.innerHTML = `Pi kod: <b>${id}<b>`;
+    copy_button.onclick = (): void => {
+      navigator.clipboard.writeText(id);
+    };
+    //@ts-ignore
+    webcamVideo.srcObject = videoStream;
+  }
 
   const callDoc = doc(db, "calls", id);
   const offerCandidates: CollectionReference<DocumentData> = collection(
@@ -212,26 +198,28 @@ const stream = async (
     "answerCandidates"
   );
 
-  pc.onicecandidate = async (event: RTCPeerConnectionIceEvent) => {
-    event.candidate &&
-      (async () => {
-        await addDoc(offerCandidates, event.candidate.toJSON());
-      })();
+  pc.oniceconnectionstatechange = async (event: Event): Promise<void> => {
+    console.log(event, pc.iceConnectionState);
+    if (pc.iceConnectionState === "disconnected") {
+      console.log("DISCONNECTED");
+      //
+      pc.restartIce();
+      //pc.close();
+
+      pc = new RTCPeerConnection(servers);
+
+      await updateDoc(callDoc, {
+        answer: deleteField(),
+        offer: deleteField(),
+      });
+      await deleteDoc(callDoc);
+      await stream(document, videoStream, id);
+    }
   };
 
-  const offerDescription: RTCSessionDescriptionInit = await pc.createOffer();
-  await pc.setLocalDescription(offerDescription);
-
-  const offer = {
-    sdp: offerDescription.sdp,
-    type: offerDescription.type,
-  };
-  await setDoc(callDoc, { offer });
-
-  const listenForAnswer = onSnapshot(
+  const listenForAnswer: Unsubscribe = onSnapshot(
     callDoc,
     (snapshot: DocumentSnapshot<DocumentData>) => {
-      // <-------------------------------------------
       const data = snapshot.data();
       if (!pc.currentRemoteDescription && data?.answer) {
         const answerDescription = new RTCSessionDescription(data.answer);
@@ -240,93 +228,130 @@ const stream = async (
     }
   );
 
-  const addCandidateOnAnswer = onSnapshot(answerCandidates, (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      if (change.type === "added") {
-        const candidate = new RTCIceCandidate(change.doc.data());
-        console.log("DESC:", pc.remoteDescription);
-        if (candidate && pc.remoteDescription && pc)
-          pc.addIceCandidate(candidate);
+  const offerDescription: RTCSessionDescriptionInit = await pc.createOffer();
+  await pc.setLocalDescription(offerDescription);
+
+  const offer: {
+    sdp: string | undefined;
+    type: string;
+  } = {
+    sdp: offerDescription.sdp,
+    type: offerDescription.type,
+  };
+  await setDoc(callDoc, { offer });
+
+  peer.on("connection", (conn: DataConnection): void => {
+    conn.on("data", async (data: any): Promise<void> => {
+      const isWhitelisted: boolean = await checkIfWhitelisted(id, data);
+      console.log(isWhitelisted);
+
+      if (!isWhitelisted) {
+        return;
       }
+
+      pc.onicecandidate = async (
+        event: RTCPeerConnectionIceEvent
+      ): Promise<void> => {
+        event.candidate &&
+          (await addDoc(offerCandidates, event.candidate.toJSON()));
+      };
+
+      const addCandidateOnAnswer: Unsubscribe = onSnapshot(
+        answerCandidates,
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              if (candidate && pc.remoteDescription && pc)
+                pc.addIceCandidate(candidate);
+            }
+          });
+        }
+      );
+
+      //listenForAnswer();
+      //addCandidateOnAnswer();
+
+      conn.send({ id: id, width: width, height: height });
     });
   });
 
-  videoId.innerHTML = `Pi kod: <b>${id}<b>`;
-  document.getElementById("copy_button").onclick = () => {
-    navigator.clipboard.writeText(id);
+  /*
+  const webcamVideo: HTMLElement | null = document.getElementById("watchVideo");
+  const videoId: HTMLElement | null = document.getElementById("watch_video_id");
+
+  videoStream.getTracks().forEach((track: MediaStreamTrack): void => {
+    pc.addTrack(track, videoStream);
+  });
+
+  const callDoc = doc(db, "calls", id);
+  const offerCandidates: CollectionReference<DocumentData> = collection(
+    callDoc,
+    "offerCandidates"
+  );
+  const answerCandidates: CollectionReference<DocumentData> = collection(
+    callDoc,
+    "answerCandidates"
+  );
+
+
+  const offerDescription: RTCSessionDescriptionInit = await pc.createOffer();
+  await pc.setLocalDescription(offerDescription);
+
+  const offer: {
+    sdp: string | undefined;
+    type: string;
+  } = {
+    sdp: offerDescription.sdp,
+    type: offerDescription.type,
   };
-  webcamVideo.srcObject = videoStream;
+  await setDoc(callDoc, { offer });
+
+  const listenForAnswer: Unsubscribe = onSnapshot(
+    callDoc,
+    (snapshot: DocumentSnapshot<DocumentData>) => {
+      const data = snapshot.data();
+      if (!pc.currentRemoteDescription && data?.answer) {
+        const answerDescription = new RTCSessionDescription(data.answer);
+        pc.setRemoteDescription(answerDescription);
+      }
+    }
+  );
+
+  const addCandidateOnAnswer: Unsubscribe = onSnapshot(
+    answerCandidates,
+    (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const candidate = new RTCIceCandidate(change.doc.data());
+          if (candidate && pc.remoteDescription && pc)
+            pc.addIceCandidate(candidate);
+        }
+      });
+    }
+  );
+  const copy_button = document.getElementById("copy_button");
+  if (videoId && copy_button && webcamVideo) {
+    videoId.innerHTML = `Pi kod: <b>${id}<b>`;
+    copy_button.onclick = (): void => {
+      navigator.clipboard.writeText(id);
+    };
+    //@ts-ignore
+    webcamVideo.srcObject = videoStream;
+  }
   //listenForAnswer();
   //addCandidateOnAnswer();
 
-  const channel = pc.createDataChannel("sendChannel", {
-    ordered: true,
-  });
-
-  setTimeout(() => {
-    console.log(channel.readyState);
-    channel.send("hello world!");
-  }, 12000);
-  /*
-  channel.binaryType = "arraybuffer";
-  channel.addEventListener("open", () => {
-    console.log("local channel open");
-  });
-
-  pc.ondatachannel = (e) => {
-    console.log(e);
-  };
-
-  channel.onopen = function (event) {
-    var readyState = channel.readyState;
-    if (readyState == "open") {
-      channel.send("Hello");
-    }
-  };
-  */
-
-  /*
-  const handleMessage = (e) => {
-    console.log(e.data);
-  };
-
-  channel.onmessage = handleMessage;
-
-  channel.onopen = () => {
-    console.log("sda");
-    channel.send("hello");
-  };
-
-  pc.ondatachannel = () => {
-    console.log("sda");
-    channel.send("hello");
-  };
-  */
-
-  pc.oniceconnectionstatechange = async (event: Event) => {
+  pc.oniceconnectionstatechange = async (event: Event): Promise<void> => {
     if (pc.iceConnectionState === "disconnected") {
       await deleteDoc(callDoc);
       await stream(document, videoStream, id);
     }
   };
-
-  var interval = setInterval(function () {
-    console.log(channel.readyState);
-    if (channel.readyState === "open") {
-      //sendServerInfo(pc, localChannel);
-      clearInterval(interval);
-      //sendServerInfo(pc, localChannel);
-      //const data = {
-      //  name: "Tonči's pi",
-      //  id: "dsiauhdsaoidewiuu43298u4329ndfcs",
-      //;
-
-      channel.send("hello");
-    }
-  }, 1000);
+  */
 };
 
-const getRecentPis = async (id: string, setPis: Function) => {
+const getRecentPis = async (id: string, setPis: Function): Promise<void> => {
   const idDocRef = doc(db, "recent", id);
   const idDoc = await getDoc(idDocRef);
 
@@ -335,44 +360,78 @@ const getRecentPis = async (id: string, setPis: Function) => {
   }
 };
 
-const checkIfBlacklisted = async (uid: string, ip: string) => {
+const checkIfWhitelisted = async (
+  uid: string,
+  ip: string
+): Promise<boolean> => {
   const userDocRef = doc(db, "users", uid);
   const userDoc = await getDoc(userDocRef);
 
   if (userDoc.exists()) {
-    return userDoc.data().blacklist.indexOf(ip) > -1;
+    return userDoc.data().whitelist.indexOf(ip) > -1;
   }
 
   return false;
 };
 
-const addToBlacklist = async (uid: string, ip: string) => {
+const addToWhitelist = async (uid: string, ip: string): Promise<void> => {
   const userDocRef = doc(db, "users", uid);
   const userDoc = await getDoc(userDocRef);
+  const isWhitelisted = await checkIfWhitelisted(uid, ip);
+  console.log("test", userDoc.exists(), !isWhitelisted);
 
-  if (userDoc.exists() && userDoc.data().blacklist.indexOf(ip) === -1) {
-    const blacklist = userDoc.data().blacklist;
-    blacklist.push(ip);
-    updateDoc(userDocRef, { blacklist: blacklist });
+  if (userDoc.exists() && !isWhitelisted) {
+    const whitelist = userDoc.data().whitelist;
+    whitelist.push(ip);
+    updateDoc(userDocRef, { whitelist: whitelist });
+  }
+
+  if (!userDoc.exists()) {
+    setDoc(userDocRef, { whitelist: [ip], name: "" });
   }
 };
 
-const removeFromBlacklist = async (uid: string, ip: string) => {
+const removeFromWhitelist = async (uid: string, ip: string): Promise<void> => {
   const userDocRef = doc(db, "users", uid);
   const userDoc = await getDoc(userDocRef);
+  const isWhitelisted = await checkIfWhitelisted(uid, ip);
+  console.log(userDoc.exists(), isWhitelisted);
 
-  if (userDoc.exists() && userDoc.data().blacklist.indexOf(ip) > -1) {
-    const blacklist = userDoc.data().blacklist;
-    blacklist.splice(userDoc.data().blacklist.indexOf(ip), 1);
-    updateDoc(userDocRef, { blacklist: blacklist });
+  if (userDoc.exists() && isWhitelisted) {
+    const whitelist = userDoc.data().whitelist;
+    whitelist.splice(userDoc.data().whitelist.indexOf(ip), 1);
+    updateDoc(userDocRef, { whitelist: whitelist });
   }
+};
+
+const checkNotificationStatus = async (uid: string): Promise<boolean> => {
+  const notificationDocRef = doc(db, "notifications", uid);
+  const notificationDoc = await getDoc(notificationDocRef);
+
+  if (!notificationDoc.exists()) {
+    await setDoc(notificationDocRef, { status: true });
+    return true;
+  }
+
+  return notificationDoc.data().status;
+};
+
+const changeNotificationStatus = async (
+  uid: string,
+  status: boolean
+): Promise<void> => {
+  const notificationDocRef = doc(db, "notifications", uid);
+
+  await setDoc(notificationDocRef, { status: status });
 };
 
 export {
   stream,
   connect,
   getRecentPis,
-  checkIfBlacklisted,
-  addToBlacklist,
-  removeFromBlacklist,
+  checkIfWhitelisted,
+  addToWhitelist,
+  removeFromWhitelist,
+  checkNotificationStatus,
+  changeNotificationStatus,
 };

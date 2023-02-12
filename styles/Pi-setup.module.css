@@ -99,3 +99,55 @@
   border-radius: 0 0 10px 10px;
   padding: 10px;
 }
+
+.bottom_wrapper {
+  padding: 25px;
+}
+
+.dropdown_modal_prompt {
+  background: #232323;
+}
+
+.dropdown_modal_backdrop {
+  background: white;
+}
+
+.dropdown_modal_body_dark {
+  background: #232323;
+}
+.dropdown_modal_body_light {
+  background: white;
+}
+.dropdown_modal_header_dark {
+  background: #232323;
+}
+.dropdown_modal_header_light {
+  background: white;
+}
+
+.whitelist_id_input_group {
+  width: 50vw;
+}
+
+.id_of_whitelisted_user {
+  border: 0;
+  background: 0;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.id_of_whitelisted_user_light:hover {
+  background: #232323;
+  color: white;
+  cursor: pointer;
+}
+
+.id_of_whitelisted_user_dark {
+  color: white;
+}
+
+.id_of_whitelisted_user_dark:hover {
+  background: white;
+  color: #232323;
+  cursor: pointer;
+}

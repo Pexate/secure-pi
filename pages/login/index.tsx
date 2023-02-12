@@ -4,34 +4,64 @@ import Link from "next/link";
 
 import styles from "/styles/Login.module.css";
 
-import CustomNavbar from "/components/navbar/navbar";
-import { useThemeContext } from "/context/context";
+import CustomNavbar from "components/navbar/navbar";
+import { useThemeContext } from "context/context";
 
 import { Form, FormInput, FormGroup, Button } from "shards-react";
 
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth } from "/firebase/firebaseconf";
+import {
+  useAuthState,
+  useSignInWithEmailAndPassword,
+} from "react-firebase-hooks/auth";
+import { useLoginFirebaseState } from "hooks/useFirebaseCredentials";
+import { auth } from "../../firebase/firebaseconf";
 
 import { useEffect, useState } from "react";
 import router from "next/router";
 
+import { getApps } from "firebase/app";
+
+import { User, UserCredential } from "firebase/auth";
+
+import { toast, ToastContainer } from "react-toastify";
+
 const Login: NextPage = () => {
   const context = useThemeContext();
-  const [signInWithEmailAndPassword, user, loading, error] =
-    useSignInWithEmailAndPassword(auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signInWithEmailAndPassword, user, loading, error] =
+    useSignInWithEmailAndPassword(auth);
+
+  const [user2, loading2, error2] = useAuthState(auth);
+
   useEffect(() => {
-    if (loading) {
-      console.log("loading");
+    user2 && router.push("/dashboard");
+  }, [user2]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Dogodila se greška...");
     }
+
     console.log(user);
-  }, [user, loading]);
+  }, [user, loading, error]);
 
   const login = async () => {
-    await signInWithEmailAndPassword(email, password);
-    router.push("dashboard");
+    try {
+      await signInWithEmailAndPassword(email, password);
+
+      if (error) {
+        console.log(error);
+        throw Error();
+      }
+    } catch (e) {
+      console.log(e);
+      throw Error();
+    }
+    //console.log(test, "TESAfasjnodiwsa");
+    //router.push("/dashboard");
   };
+
   return (
     <div className={styles.wrapper}>
       <Head>
@@ -74,7 +104,9 @@ const Login: NextPage = () => {
                         }
                       : {}
                   }
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail((e.target as HTMLTextAreaElement).value)
+                  }
                 />
               </FormGroup>
               <FormGroup>
@@ -93,15 +125,22 @@ const Login: NextPage = () => {
                       ? { color: "white", background: "#232323" }
                       : {}
                   }
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword((e.target as HTMLTextAreaElement).value)
+                  }
                 />
               </FormGroup>
               <Button
+                //@ts-ignore
                 theme={context.theme === "dark" ? "white" : "dark"}
                 outline
                 block
                 onClick={() => {
-                  login();
+                  toast.promise(login, {
+                    pending: "Prijava u tijeku...",
+                    success: "Prijava uspješno izvršena!",
+                    error: "Dogodila se greška tijekom prijave...",
+                  });
                 }}
               >
                 <b>Prijava</b>
@@ -115,14 +154,23 @@ const Login: NextPage = () => {
         </main>
       </div>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tonči Crljen &copy; 2022{" "}
-        </a>
+      <footer
+        className={styles.footer}
+        style={
+          context.theme === "dark"
+            ? {
+                backgroundColor: "#1d1d1d",
+                border: "none",
+                color: "white",
+              }
+            : {
+                border: "none",
+                backgroundColor: "#eee",
+                color: "black",
+              }
+        }
+      >
+        Tonči Crljen &copy; 2023{" "}
       </footer>
     </div>
   );

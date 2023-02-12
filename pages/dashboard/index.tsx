@@ -3,38 +3,69 @@ import Head from "next/head";
 import Image from "next/image";
 import router from "next/router";
 import styles from "/styles/Dashboard.module.css";
-import CustomNavbar from "/components/navbar/navbar";
-import Loading from "/components/loading/loading";
+import CustomNavbar from "components/navbar/navbar";
+import Loading from "components/loading/loading";
 
-import { useThemeContext } from "/context/context";
+import { useThemeContext } from "context/context";
 import { useEffect, useState, useRef } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, storage } from "/firebase/firebaseconf";
+import { auth, storage } from "../../firebase/firebaseconf";
 
-import { Badge, Button, Card } from "shards-react";
+import {
+  Badge,
+  Button,
+  Card,
+  FormInput,
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "shards-react";
 
-import { logOut, setProfilePicture } from "/firebase/firebaseMethods";
+import {
+  changeDeviceName,
+  changeUsername,
+  logOut,
+  setProfilePicture,
+} from "../../firebase/firebaseMethods";
 
 import { useRouter } from "next/router";
 
-import {
-  getRecentPis,
-  checkIfBlacklisted,
-  addToBlacklist,
-  removeFromBlacklist,
-} from "/firebase/webrtc";
+import { getRecentPis } from "../../firebase/webrtc";
 
 import ReactCrop from "react-image-crop";
 import type { Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { createURLFromCrop, centerAspectCrop } from "./uploadPictureCrop";
+import {
+  createURLFromCrop,
+  centerAspectCrop,
+} from "../../components/picture_upload/uploadPictureCrop";
+
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { User } from "firebase/auth";
+
+import { HiPencilAlt } from "react-icons/hi";
+
+import { ToastContainer, toast } from "react-toastify";
+
+export interface ModalBodyProps {
+  term: string;
+}
+
+export interface ModalBodyProps {
+  children: Element[];
+  className: string;
+}
+
+export interface IntrinsicAttributes {
+  children: Element[];
+  className: string;
+}
 
 const Dashboard: NextPage = () => {
   const context = useThemeContext();
-  const [user, loading, error] = useAuthState(auth);
 
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [photoURL, setPhotoURL] = useState(
+  const [selectedFile, setSelectedFile] = useState<null | File>(null);
+  const [photoURL, setPhotoURL] = useState<string>(
     "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
   );
   const [image, setImage] = useState("http://example.com/initialimage.jpg");
@@ -45,6 +76,11 @@ const Dashboard: NextPage = () => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const [open, setOpen] = useState<boolean>(false);
+  const [opened, setOpened] = useState<boolean>(false);
+  const [deviceName, setDeviceName] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [userID, setUserID] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -52,17 +88,56 @@ const Dashboard: NextPage = () => {
     await logOut();
     router.push("/");
   };
+  const [user, loading, error] = useAuthState(auth);
+
   useEffect(() => {
     if ((user === null && loading === false) || error) router.push("/");
     if (user?.photoURL) setPhotoURL(user.photoURL);
 
+    const messaging = getMessaging();
+    getToken(messaging, {
+      vapidKey:
+        "BJnYciQ4kxWGLqhO6yjjaKirXUO4SRCxtnYq12sLsVjb_asgy2Md5A-wqrUR96lQO41M-Inhp_klVczuRT-7_Mg",
+    })
+      .then((currentToken) => {
+        if (currentToken) {
+          console.log("TOKEN ZA SLANJE OBAVIJESTI:", currentToken);
+          // Send the token to your server and update the UI if necessary
+          // ...
+        } else {
+          // Show permission request UI
+          console.log(
+            "No registration token available. Request permission to generate one."
+          );
+          // ...
+        }
+      })
+      .catch((err) => {
+        console.log("An error occurred while retrieving token. ", err);
+        // ...
+      });
+
+    onMessage(messaging, (payload) => {
+      console.log("Message received. ", payload);
+      payload.data &&
+        new Notification(payload.data.title, {
+          body: JSON.parse(payload.data.body).name,
+        });
+      // ...
+    });
+
+    /*
     (async () => {
-      let a = await checkIfBlacklisted(
+      let a = await checkIfWhitelisted(
         "Aax3WfLmvoU9iOgtfqGVdizc5rt2",
         "192.168.1.1"
       );
     })();
-    getRecentPis(user?.uid, setPis);
+    */
+    if (user) {
+      getRecentPis(user?.uid, setPis);
+      setUserID(user?.uid);
+    }
   }, [user, loading, error, shown]);
 
   return (
@@ -91,48 +166,440 @@ const Dashboard: NextPage = () => {
             style={{
               color: context.theme === "dark" ? "white" : "",
             }}
+            className={styles.view_wrapper}
           >
             {loading || user === null ? (
               <Loading />
             ) : (
               <>
-                <button
-                  onClick={() => {
-                    setShown(!shown);
-                  }}
-                  style={{
-                    border: 0,
-                    padding: 0,
-                    width: 65,
-                    height: 65,
-                  }}
-                >
-                  <img
-                    src={photoURL}
-                    width={65}
-                    height={65}
-                    style={{
-                      marginBottom: 8,
-                      marginRight: 8,
+                <div className={styles.upper_section}>
+                  <button
+                    onClick={() => {
+                      setOpened(true);
                     }}
-                  />
-                </button>
-                <b style={{ fontSize: 42, marginRight: 8 }}>
-                  Prijavljen kao {user?.displayName}
-                </b>{" "}
-                <span style={{ fontSize: 20 }}>({user?.email})</span>
-                <Button
-                  theme={context.theme === "dark" ? "white" : "dark"}
-                  outline
-                  block
-                  onClick={() => logOutClick()}
-                >
-                  <b>Odjavi se</b>
-                </Button>
-                <div
+                    style={{
+                      border: 0,
+                      padding: 0,
+                      width: 65,
+                      height: 65,
+                    }}
+                  >
+                    <img
+                      src={photoURL}
+                      width={65}
+                      height={65}
+                      style={{
+                        marginBottom: 8,
+                        marginRight: 8,
+                      }}
+                    />
+                  </button>
+                  <div className={styles.display_name_and_email}>
+                    {user && (
+                      <>
+                        <b className={styles.text_display_name}>
+                          Prijavljen kao{" "}
+                          {
+                            //@ts-ignore
+                            user?.displayName
+                          }
+                        </b>{" "}
+                        <span
+                          style={{
+                            fontSize: 20,
+                          }}
+                        >
+                          (
+                          {
+                            //@ts-ignore
+                            user?.email
+                          }
+                          )
+                          <HiPencilAlt
+                            className={styles.pencil_edit_button}
+                            onClick={() => {
+                              setOpen(true);
+                            }}
+                          />
+                        </span>
+                        <div style={{ textAlign: "center", paddingBottom: 8 }}>
+                          <b>{"Korisnikov ID: " + userID}</b>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <Button
+                    //@ts-ignore
+                    theme={context.theme === "dark" ? "white" : "dark"}
+                    className={styles.log_out_button}
+                    outline
+                    block
+                    onClick={() => logOutClick()}
+                  >
+                    <b>Odjavi se</b>
+                  </Button>
+                </div>
+
+                <div className={styles.recently_connected_pis}>
+                  <div className={styles.recently_connected_pis_content}>
+                    <b style={{ fontSize: 24, marginRight: 8 }}>
+                      Prethodno povezani Pievi
+                    </b>{" "}
+                    <div className={styles.pi_container_container}>
+                      {pis !== null
+                        ? //@ts-ignore
+                          pis.recent.map((e) => {
+                            if (e)
+                              return (
+                                <div
+                                  className={`${styles.pi_container} ${
+                                    context.theme === "dark"
+                                      ? styles.pi_container_dark
+                                      : styles.pi_container_light
+                                  }`}
+                                >
+                                  <div
+                                    className={styles.pi_status_indicator}
+                                    style={{
+                                      backgroundColor:
+                                        e.status === "online"
+                                          ? "green"
+                                          : "#aa2211",
+                                    }}
+                                  >
+                                    {e.status === "online"
+                                      ? "Aktivan"
+                                      : "Neaktivan"}
+                                  </div>
+                                  <div className={styles.pi_container_top}>
+                                    <p className={styles.pi_name}>
+                                      <b>{e}</b>
+                                    </p>
+                                  </div>
+                                  <Button
+                                    disabled={e.status === "offline"}
+                                    theme={
+                                      context.theme === "dark"
+                                        ? "light"
+                                        : "dark"
+                                    }
+                                    pill
+                                    className={styles.pi_connect_button}
+                                    onClick={() => router.push(`/connect/${e}`)}
+                                  >
+                                    Poveži
+                                  </Button>
+                                </div>
+                              );
+                          })
+                        : "Nema prethodno povezanih Pieva"}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        <Modal
+          open={open}
+          toggle={() => {
+            setOpen(!open);
+          }}
+          backdrop={true}
+          size={"lg"}
+          modalContentClassName={styles.dropdown_modal_prompt}
+          modalClassName={styles.dropdown_modal}
+          backdropClassName={styles.dropdown_modal_backdrop}
+        >
+          <ModalHeader
+            className={`${styles.dropdown_modal_header} ${
+              context.theme === "dark"
+                ? styles.dropdown_modal_header_dark
+                : styles.dropdown_modal_header_light
+            }`}
+          >
+            <h4
+              style={{
+                color: context.theme === "dark" ? "white" : "#232323",
+              }}
+            >
+              {" "}
+              Promjeni korisničko ime ili ime Raspberry Pia
+            </h4>
+          </ModalHeader>
+          <ModalBody
+            className={
+              context.theme === "dark"
+                ? styles.dropdown_modal_body_dark
+                : styles.dropdown_modal_body_light
+            }
+          >
+            <p
+              style={{
+                color: context.theme === "dark" ? "white" : "#232323",
+              }}
+            >
+              U donjem polju za unos možeš promjeniti svoje korisničko ime.
+            </p>
+            <FormInput
+              placeholder={"Unesi novo korisničko ime"}
+              style={
+                context.theme === "dark"
+                  ? {
+                      color: "white",
+                      background: "#232323",
+                    }
+                  : {}
+              }
+              onChange={(e) =>
+                setUsername((e.target as HTMLInputElement).value)
+              }
+            ></FormInput>
+            <Button
+              block
+              outline
+              //@ts-ignore
+              theme={context.theme === "dark" ? "white" : "dark"}
+              style={{ margin: "12px 0 32px 0" }}
+              onClick={() => {
+                user &&
+                  username &&
+                  toast.promise(
+                    async () => {
+                      await changeUsername(username);
+                      setOpen(false);
+                    },
+                    {
+                      pending: "Promjena korisničkog imena u tijeku...",
+                      success: "Uspješno promjenjeno korisničko ime!",
+                      error:
+                        "Dogodila se greška tijekom promjene korisničkog imena...",
+                    }
+                  );
+              }}
+            >
+              <b>Promjeni korisničko ime</b>
+            </Button>
+            <p
+              style={{
+                color: context.theme === "dark" ? "white" : "#232323",
+              }}
+            >
+              U donjem polju za unos možeš promjeniti ime svog uređaja
+              (Raspberry Pia).
+            </p>
+            <FormInput
+              placeholder={"Unesite novo ime uređaja"}
+              style={
+                context.theme === "dark"
+                  ? {
+                      color: "white",
+                      background: "#232323",
+                    }
+                  : {}
+              }
+              onChange={(e) =>
+                setDeviceName((e.target as HTMLInputElement).value)
+              }
+            ></FormInput>
+            <Button
+              block
+              outline
+              //@ts-ignore
+              theme={context.theme === "dark" ? "white" : "dark"}
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                user &&
+                  deviceName &&
+                  toast.promise(
+                    async () => {
+                      await changeDeviceName(deviceName, user.uid);
+                      setOpen(false);
+                    },
+                    {
+                      success: "Uspješno promjenjeno ime uređaja!",
+                      error:
+                        "Dogodila se pogreška tijekom mjenajnja imena uređaja...",
+                      pending: "Promjena imena u tijeku...",
+                    }
+                  );
+              }}
+            >
+              <b>Postavi ime uređaja</b>
+            </Button>
+            <p
+              style={{
+                color: context.theme === "dark" ? "white" : "#232323",
+              }}
+            ></p>
+          </ModalBody>
+        </Modal>
+
+        <Modal
+          open={opened}
+          toggle={() => {
+            setOpened(!opened);
+          }}
+          backdrop={true}
+          size={"lg"}
+          modalContentClassName={styles.dropdown_modal_prompt}
+          modalClassName={styles.dropdown_modal}
+          backdropClassName={styles.dropdown_modal_backdrop}
+        >
+          <ModalHeader
+            className={`${styles.dropdown_modal_header} ${
+              context.theme === "dark"
+                ? styles.dropdown_modal_header_dark
+                : styles.dropdown_modal_header_light
+            }`}
+          >
+            <b
+              style={{
+                fontSize: 35,
+                color: context.theme === "dark" ? "white" : "black",
+              }}
+            >
+              Promjeni profilu sliku
+            </b>
+          </ModalHeader>
+          <ModalBody
+            className={`${styles.dropdown_modal_body} ${
+              context.theme === "dark"
+                ? styles.dropdown_modal_body_dark
+                : styles.dropdown_modal_body_light
+            }`}
+          >
+            {!!imgSrc ? (
+              <ReactCrop
+                crop={crop}
+                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={1}
+                style={{ maxHeight: 700, maxWidth: 700 }}
+                className={styles.react_crop_modal}
+              >
+                <img
+                  ref={imgRef}
+                  alt="Crop me"
+                  src={imgSrc}
+                  onLoad={(e) =>
+                    setCrop(
+                      centerAspectCrop(
+                        e.currentTarget.width,
+                        e.currentTarget.height,
+                        1
+                      )
+                    )
+                  }
+                />
+              </ReactCrop>
+            ) : (
+              ""
+            )}
+            <div className={styles.upload_buttons_container}>
+              <label
+                htmlFor="file-upload"
+                className={styles.custom_file_upload}
+                style={{
+                  border:
+                    context.theme === "dark"
+                      ? "1px solid #ffffff"
+                      : "1px solid #232323",
+                }}
+              >
+                Odaberi sliku
+              </label>
+              <input
+                className={`${styles.file_input} ${
+                  context.theme === "dark"
+                    ? styles.file_input_dark
+                    : styles.file_input_light
+                }`}
+                id="file-upload"
+                style={{ opacity: 0, width: 0 }}
+                type="file"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setSelectedFile(e.target.files[0]);
+                    const reader = new FileReader();
+                    reader.readAsDataURL(e.target.files[0]);
+                    reader.onload = () => {
+                      setImgSrc(reader.result?.toString() || "");
+                    };
+                  }
+                }}
+              />
+              <input id="file-upload" style={{ display: "none" }} type="file" />
+              <Button
+                //@ts-ignore
+                theme={context.theme === "dark" ? "white" : "dark"}
+                outline
+                onClick={async () => {
+                  if (imgRef.current && completedCrop) {
+                    toast.promise(
+                      async () => {
+                        const cropURL = await createURLFromCrop(
+                          //@ts-ignore
+                          imgRef.current,
+                          completedCrop
+                        );
+
+                        if (cropURL && user) {
+                          const url = await setProfilePicture(cropURL, user);
+                          setPhotoURL(url);
+                        }
+                        setOpened(false);
+                      },
+                      {
+                        success: "Uspješno promjenjena profilna slika!",
+                        error:
+                          "Dogodila se greška tijekom promjene profilne slike...",
+                        pending: "Promjena profilne slike u tijeku...",
+                      }
+                    );
+                  }
+                }}
+              >
+                Promjeni
+              </Button>
+            </div>
+          </ModalBody>
+        </Modal>
+      </main>
+
+      <footer
+        className={styles.footer}
+        style={
+          context.theme === "dark"
+            ? {
+                backgroundColor: "#1d1d1d",
+                border: "none",
+                color: "white",
+              }
+            : {
+                border: "none",
+                backgroundColor: "#eee",
+                color: "black",
+              }
+        }
+      >
+        Tonči Crljen &copy; 2023{" "}
+      </footer>
+    </div>
+  );
+};
+
+export default Dashboard;
+/*
+<p className={styles.pi_id}>{e}</p>
+*/
+/*
+<div
                   className={styles.avatar_upload_container}
                   style={{
                     opacity: shown ? 1 : 0,
+                    zIndex: shown ? 5 : -5,
                     background:
                       context.theme === "dark" ? "#1d1d1d" : "#ededed",
                     boxShadow:
@@ -197,12 +664,14 @@ const Dashboard: NextPage = () => {
                       style={{ opacity: 0, width: 0 }}
                       type="file"
                       onChange={(e) => {
-                        setSelectedFile(e.target.files[0]);
-                        const reader = new FileReader();
-                        reader.readAsDataURL(e.target.files[0]);
-                        reader.onload = () => {
-                          setImgSrc(reader.result?.toString() || "");
-                        };
+                        if (e.target.files) {
+                          setSelectedFile(e.target.files[0]);
+                          const reader = new FileReader();
+                          reader.readAsDataURL(e.target.files[0]);
+                          reader.onload = () => {
+                            setImgSrc(reader.result?.toString() || "");
+                          };
+                        }
                       }}
                     />
                     <input
@@ -211,17 +680,20 @@ const Dashboard: NextPage = () => {
                       type="file"
                     />
                     <Button
+                      //@ts-ignore
                       theme={context.theme === "dark" ? "white" : "dark"}
                       outline
                       onClick={async () => {
-                        const cropURL = await createURLFromCrop(
-                          imgRef.current,
-                          completedCrop
-                        );
+                        if (imgRef.current && completedCrop) {
+                          const cropURL = await createURLFromCrop(
+                            imgRef.current,
+                            completedCrop
+                          );
 
-                        if (cropURL) {
-                          const url = await setProfilePicture(cropURL, user);
-                          setPhotoURL(url);
+                          if (cropURL && user) {
+                            const url = await setProfilePicture(cropURL, user);
+                            setPhotoURL(url);
+                          }
                         }
                       }}
                     >
@@ -229,86 +701,4 @@ const Dashboard: NextPage = () => {
                     </Button>
                   </div>
                 </div>
-                <div className={styles.recently_connected_pis}>
-                  <b style={{ fontSize: 24, marginRight: 8 }}>
-                    Prethodno povezani Pi-evi
-                  </b>{" "}
-                  <div className={styles.pi_container_container}>
-                    {pis !== null
-                      ? pis.recent.map((e) => {
-                          return (
-                            <div
-                              className={`${styles.pi_container} ${
-                                context.theme === "dark"
-                                  ? styles.pi_container_dark
-                                  : styles.pi_container_light
-                              }`}
-                            >
-                              <div
-                                className={styles.pi_status_indicator}
-                                style={{
-                                  backgroundColor:
-                                    e.status === "online" ? "green" : "#aa2211",
-                                }}
-                              >
-                                {e.status === "online"
-                                  ? "Aktivan"
-                                  : "Neaktivan"}
-                              </div>
-                              <div className={styles.pi_container_top}>
-                                <p className={styles.pi_name}>
-                                  <b>{e.name}</b>
-                                </p>
-                                <p className={styles.pi_id}>{e}</p>
-                              </div>
-                              <Button
-                                disabled={e.status === "offline"}
-                                theme={
-                                  context.theme === "dark" ? "light" : "dark"
-                                }
-                                pill
-                                className={styles.pi_connect_button}
-                                onClick={() => router.push(`/connect/${e.id}`)}
-                              >
-                                Poveži
-                              </Button>
-                            </div>
-                          );
-                        })
-                      : ""}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tonči Crljen &copy; 2022{" "}
-        </a>
-      </footer>
-      <button
-        onClick={() => {
-          addToBlacklist(user?.uid, "192.168.1.2");
-        }}
-      >
-        Dodaj
-      </button>
-      <button
-        onClick={() => {
-          removeFromBlacklist(user?.uid, "192.168.1.1");
-        }}
-      >
-        Izbriši
-      </button>
-    </div>
-  );
-};
-
-export default Dashboard;
+*/

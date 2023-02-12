@@ -15,35 +15,35 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  FormInput,
   Collapse,
   Button,
   Badge,
+  Container,
+  Row,
+  Col,
 } from "shards-react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css";
 
 import { useState, useEffect } from "react";
-import { useThemeContext } from "/context/context";
+import { useThemeContext } from "context/context";
 
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "/firebase/firebaseconf";
+import { auth } from "../../firebase/firebaseconf";
 import router from "next/router";
 import { connectFirestoreEmulator } from "firebase/firestore";
+import useWindowDimensions from "hooks/useWindowDimensions";
+
+import { BiMenuAltRight } from "react-icons/bi";
+import { style } from "@mui/system";
 
 const CustomNavbar: FunctionComponent = () => {
-  const [dropdown, setDropdown] = useState(false);
   const context: { theme: string; changeTheme: () => void } = useThemeContext();
   const [user, loading, error] = useAuthState(auth);
-  const [profileNameColor, setProfileNameColor] = useState(false);
-
-  const toggleDropdown = () => {
-    setDropdown(!dropdown);
-  };
+  const [profileNameColor, setProfileNameColor] = useState<boolean>(false);
+  const { height, width } = useWindowDimensions();
+  const [dropdownMenu, setDropdownMenu] = useState<boolean>(false);
 
   const changeProfileNameColor = () => {
     setProfileNameColor(!profileNameColor);
@@ -58,9 +58,18 @@ const CustomNavbar: FunctionComponent = () => {
   }, []);
 
   return (
-    <Navbar type={context.theme} theme="transparent" expand="sm">
+    <Navbar
+      type={
+        context.theme === "dark" || context.theme === "light"
+          ? context.theme
+          : "light"
+      }
+      theme={"transparent"}
+      expand="sm"
+      className={styles.navbar}
+    >
       <NavbarBrand>
-        <Link href="/">
+        <Link href={user ? "/dashboard" : "/"}>
           <Image
             src="/scurepi.png"
             width={48}
@@ -70,142 +79,246 @@ const CustomNavbar: FunctionComponent = () => {
                 ? { filter: "invert(100%)", cursor: "pointer" }
                 : { cursor: "pointer" }
             }
+            alt={"Secure pi logo"}
           ></Image>
         </Link>
       </NavbarBrand>
-
-      <Collapse navbar>
-        {!loading ? (
-          <Nav navbar>
-            {user ? (
-              <>
-                <Link
-                  href="/pi-setup"
-                  className={styles.navlink}
-                  style={{ textDecoration: "none" }}
+      {width && width < 576 ? (
+        <>
+          <Nav className="ml-auto">
+            {user && (
+              <NavItem>
+                <Badge
+                  theme={
+                    context.theme === "dark"
+                      ? profileNameColor
+                        ? "dark"
+                        : "light"
+                      : profileNameColor
+                      ? "light"
+                      : "dark"
+                  }
+                  style={{
+                    marginRight: 8,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    padding: 10,
+                  }}
+                  onMouseOver={() => changeProfileNameColor()}
+                  onMouseOut={() => changeProfileNameColor()}
+                  onClick={() => router.push("/dashboard")}
                 >
-                  <NavLink style={{ cursor: "pointer" }}>Prenosi</NavLink>
-                </Link>
-                <Link
-                  href="/connect"
-                  className={styles.navlink}
-                  style={{ textDecoration: "none" }}
-                >
-                  <NavLink style={{ cursor: "pointer" }}>Gledaj</NavLink>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/register"
-                  className={styles.navlink}
-                  style={{ textDecoration: "none" }}
-                >
-                  <NavLink style={{ cursor: "pointer" }}>
-                    Registriraj se
-                  </NavLink>
-                </Link>
-                <Dropdown open={dropdown} toggle={toggleDropdown}>
-                  <DropdownToggle nav caret>
-                    Dropdown
-                  </DropdownToggle>
-                  <DropdownMenu
-                    className={
-                      context.theme === "dark" ? styles.dropdown_dark : ""
-                    }
-                  >
-                    <DropdownItem
-                      className={
-                        context.theme === "dark"
-                          ? styles.dropdown_item_dark
-                          : ""
-                      }
-                    >
-                      Action
-                    </DropdownItem>
-                    <DropdownItem
-                      className={
-                        context.theme === "dark"
-                          ? styles.dropdown_item_dark
-                          : ""
-                      }
-                    >
-                      Another action
-                    </DropdownItem>
-                    <DropdownItem
-                      className={
-                        context.theme === "dark"
-                          ? styles.dropdown_item_dark
-                          : ""
-                      }
-                    >
-                      Something else here
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              </>
+                  {user.displayName}
+                </Badge>
+              </NavItem>
             )}
-          </Nav>
-        ) : (
-          ""
-        )}
 
-        <Nav navbar className="ml-auto">
-          <NavItem>
-            {user ? (
-              <Badge
-                theme={
-                  context.theme === "dark"
-                    ? profileNameColor
-                      ? "dark"
-                      : "light"
-                    : profileNameColor
-                    ? "light"
-                    : "dark"
-                }
-                style={{ marginRight: 8, cursor: "pointer", fontSize: 12 }}
-                onMouseOver={() => changeProfileNameColor()}
-                onMouseOut={() => changeProfileNameColor()}
-                onClick={() => router.push("/dashboard")}
+            <NavItem>
+              <button
+                style={{
+                  border: "none",
+                  background: "transparent",
+                }}
+                onClick={context.changeTheme}
               >
-                {user.displayName}
-              </Badge>
+                <Image
+                  src="/moon.png"
+                  width={24}
+                  height={24}
+                  style={{
+                    filter:
+                      context.theme === "dark" ? "invert(100%)" : "invert(0%)",
+                  }}
+                  alt={"Change theme"}
+                />
+              </button>
+              <button
+                style={{
+                  border: 0,
+                  background: "none",
+                  padding: "2px 0 2px 16px",
+                }}
+                onClick={() => {
+                  setDropdownMenu(!dropdownMenu);
+                  console.log(dropdownMenu);
+                }}
+                className={`${styles.dropdown_menu_button} ${
+                  context.theme === "dark"
+                    ? styles.dropdown_menu_button_dark
+                    : styles.dropdown_menu_button_light
+                }`}
+              >
+                <BiMenuAltRight style={{ width: 26, height: 26 }} />
+              </button>
+            </NavItem>
+          </Nav>
+          {dropdownMenu && (
+            <div
+              className={`${styles.menu_dropdown} ${
+                context.theme === "dark"
+                  ? styles.menu_dropdown_dark
+                  : styles.menu_dropdown_light
+              }`}
+            >
+              {user ? (
+                <>
+                  <Link href="/pi-setup">
+                    <div
+                      className={`${styles.menu_dropdown_item} ${
+                        context.theme === "dark"
+                          ? styles.menu_dropdown_item_dark
+                          : styles.menu_dropdown_item_light
+                      }`}
+                    >
+                      Streamaj
+                    </div>
+                  </Link>
+                  <Link href="/connect">
+                    <div
+                      className={`${styles.menu_dropdown_item} ${
+                        context.theme === "dark"
+                          ? styles.menu_dropdown_item_dark
+                          : styles.menu_dropdown_item_light
+                      }`}
+                    >
+                      Gledaj
+                    </div>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/register" className={styles.menu_dropdown_link}>
+                    <div
+                      className={`${styles.menu_dropdown_item} ${
+                        context.theme === "dark"
+                          ? styles.menu_dropdown_item_dark
+                          : styles.menu_dropdown_item_light
+                      }`}
+                    >
+                      Registriraj se
+                    </div>
+                  </Link>
+                  <Link href="/login">
+                    <div
+                      className={`${styles.menu_dropdown_item} ${
+                        context.theme === "dark"
+                          ? styles.menu_dropdown_item_dark
+                          : styles.menu_dropdown_item_light
+                      }`}
+                    >
+                      Prijavi se
+                    </div>
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <Collapse navbar>
+            {!loading ? (
+              <Nav navbar>
+                {user ? (
+                  <>
+                    {[
+                      ["pi-setup", "Streamaj"],
+                      ["connect", "Gledaj"],
+                      ["help", "Upute"],
+                    ].map((x, i) => {
+                      return (
+                        <Link
+                          href={`/${x[0]}`}
+                          className={styles.navlink}
+                          style={{ textDecoration: "none" }}
+                        >
+                          <NavLink style={{ cursor: "pointer" }}>
+                            {x[1]}
+                          </NavLink>
+                        </Link>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/register"
+                      className={styles.navlink}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <NavLink style={{ cursor: "pointer" }}>
+                        Registriraj se
+                      </NavLink>
+                    </Link>
+                    <Link
+                      href="/login"
+                      className={styles.navlink}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <NavLink style={{ cursor: "pointer" }}>
+                        Prijavi se
+                      </NavLink>
+                    </Link>
+                  </>
+                )}
+              </Nav>
             ) : (
               ""
             )}
-          </NavItem>
-          <NavItem>
-            <button
-              style={{
-                border: "none",
-                background: "transparent",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onClick={context.changeTheme}
-              /*
-              onMouseOver={(e) => {
-                e.target.style.filter = "invert(60%)";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.filter = "invert(0%)";
-              }}*
-              */
-            >
-              <Image
-                src="/moon.png"
-                width={24}
-                height={24}
-                style={{
-                  filter:
-                    context.theme === "dark" ? "invert(100%)" : "invert(0%)",
-                }}
-              />
-            </button>
-          </NavItem>
-        </Nav>
-      </Collapse>
+
+            <Nav navbar className="ml-auto">
+              <NavItem>
+                {user ? (
+                  <Badge
+                    theme={
+                      context.theme === "dark"
+                        ? profileNameColor
+                          ? "dark"
+                          : "light"
+                        : profileNameColor
+                        ? "light"
+                        : "dark"
+                    }
+                    style={{ marginRight: 8, cursor: "pointer", fontSize: 12 }}
+                    onMouseOver={() => changeProfileNameColor()}
+                    onMouseOut={() => changeProfileNameColor()}
+                    onClick={() => router.push("/dashboard")}
+                  >
+                    {user.displayName}
+                  </Badge>
+                ) : (
+                  ""
+                )}
+              </NavItem>
+              <NavItem>
+                <button
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onClick={context.changeTheme}
+                >
+                  <Image
+                    src="/moon.png"
+                    width={24}
+                    height={24}
+                    style={{
+                      filter:
+                        context.theme === "dark"
+                          ? "invert(100%)"
+                          : "invert(0%)",
+                    }}
+                    alt={"Change theme"}
+                  />
+                </button>
+              </NavItem>
+            </Nav>
+          </Collapse>
+        </>
+      )}
     </Navbar>
   );
 };

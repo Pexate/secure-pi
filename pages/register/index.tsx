@@ -3,47 +3,65 @@ import Head from "next/head";
 
 import styles from "/styles/Register.module.css";
 
-import CustomNavbar from "/components/navbar/navbar";
-import { useThemeContext } from "/context/context";
+import CustomNavbar from "components/navbar/navbar";
+import { useThemeContext } from "context/context";
 
 import { Form, FormInput, FormGroup, Button } from "shards-react";
 
-import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { auth } from "/firebase/firebaseconf";
+import {
+  useAuthState,
+  useCreateUserWithEmailAndPassword,
+} from "react-firebase-hooks/auth";
+import { auth } from "../../firebase/firebaseconf";
 import {
   updateUserProfile,
   setRegistrationInfo,
-} from "/firebase/firebaseMethods";
+} from "../../firebase/firebaseMethods";
 
-import { useEffect, useState } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 
 import Link from "next/link";
 
 import { useRouter } from "next/router";
 
+import { UserCredential } from "firebase/auth";
+
+import { ToastContainer, toast } from "react-toastify";
+
 const Register: NextPage = () => {
   const context = useThemeContext();
   const [createUserWithEmailAndPassword, user, loading, error] =
     useCreateUserWithEmailAndPassword(auth);
+  const [user2, loading2, error2] = useAuthState(auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.push("/dashboard");
-  }, []);
+    user2 && router.push("/dashboard");
+  }, [user2]);
 
   useEffect(() => {
     if (user) {
       updateUserProfile({ displayName: username });
-      setRegistrationInfo(username, user.user.uid);
+      try {
+        //@ts-ignore
+        setRegistrationInfo(username, user.user.uid);
+      } catch (e) {
+        //@ts-ignore
+        setRegistrationInfo(username, user.uid);
+      }
     }
   }, [user]);
 
-  const registerClick: Function = async () => {
+  const registerClick = async (): Promise<void> => {
     console.log(email, password);
-    await createUserWithEmailAndPassword(email, password);
+    email &&
+      password &&
+      createUserWithEmailAndPassword &&
+      //@ts-ignore
+      (await createUserWithEmailAndPassword(email, password));
     //const _user = await updateUserProfile({ displayName: username });
   };
 
@@ -95,7 +113,9 @@ const Register: NextPage = () => {
                         }
                       : {}
                   }
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) =>
+                    setUsername((e.target as HTMLTextAreaElement).value)
+                  }
                 />
               </FormGroup>
               <FormGroup>
@@ -117,7 +137,9 @@ const Register: NextPage = () => {
                         }
                       : {}
                   }
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail((e.target as HTMLTextAreaElement).value)
+                  }
                 />
               </FormGroup>
               <FormGroup>
@@ -136,14 +158,24 @@ const Register: NextPage = () => {
                       ? { color: "white", background: "#232323" }
                       : {}
                   }
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword((e.target as HTMLTextAreaElement).value)
+                  }
                 />
               </FormGroup>
               <Button
+                //@ts-ignore
                 theme={context.theme === "dark" ? "white" : "dark"}
                 outline
                 block
-                onClick={registerClick}
+                onClick={() =>
+                  toast.promise(registerClick, {
+                    pending: "Registracija u tijeku...",
+                    success: "Uspješno je napravljen korisnički račun!",
+                    error:
+                      "Dogodila se greška tijekom stvaranja korisničkog računa...",
+                  }) as unknown as MouseEventHandler
+                }
               >
                 <b>Registriraj</b>
               </Button>
@@ -156,14 +188,23 @@ const Register: NextPage = () => {
         </main>
       </div>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tonči Crljen &copy; 2022{" "}
-        </a>
+      <footer
+        className={styles.footer}
+        style={
+          context.theme === "dark"
+            ? {
+                backgroundColor: "#1d1d1d",
+                border: "none",
+                color: "white",
+              }
+            : {
+                border: "none",
+                backgroundColor: "#eee",
+                color: "black",
+              }
+        }
+      >
+        Tonči Crljen &copy; 2023{" "}
       </footer>
     </div>
   );

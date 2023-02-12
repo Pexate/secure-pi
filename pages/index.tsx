@@ -2,21 +2,23 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-import CustomNavbar from "/components/navbar/navbar";
+import CustomNavbar from "components/navbar/navbar";
 
-import { useThemeContext } from "/context/context";
+import { useThemeContext } from "context/context";
 
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "/firebase/firebaseconf";
+import { auth } from "../firebase/firebaseconf";
 
 import { useEffect } from "react";
 import router from "next/router";
+import { useFirebaseState } from "hooks/useFirebaseCredentials";
+import { User } from "firebase/auth";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   const context = useThemeContext();
   const [user, loading, error] = useAuthState(auth);
   useEffect(() => {
-    console.log(loading);
     if (user && loading === false) router.push("/dashboard");
   }, [user, loading, error]);
   return (
@@ -33,24 +35,47 @@ const Home: NextPage = () => {
       >
         <CustomNavbar />
         <div
-          className={
+          className={`${styles.content_wrapper} ${
             context.theme === "dark"
               ? styles.dark_wrapper
               : styles.light_wrapper
-          }
+          }`}
         >
-          <h1>Hello</h1>
+          <h1
+            className={styles.main_header}
+            style={{ color: context.theme === "dark" ? "white" : "black" }}
+          >
+            SecurePi - sustav za nadzor objekta
+          </h1>
+          <h3 style={{ color: context.theme === "dark" ? "white" : "black" }}>
+            Gdje početi?
+          </h3>
+          <p>
+            Da biste mogli pristupiti mogučnostima sustava, morate se
+            registrirati ili prijaviti ako već imate korisnički račun, to možete
+            napraviti na sljedečem linku: <Link href="/login">Prijava</Link> ili{" "}
+            <Link href="/register">Registracija</Link>
+          </p>
         </div>
       </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tonči Crljen &copy; 2022{" "}
-        </a>
+      <footer
+        className={styles.footer}
+        style={
+          context.theme === "dark"
+            ? {
+                backgroundColor: "#1d1d1d",
+                border: "none",
+                color: "white",
+              }
+            : {
+                border: "none",
+                backgroundColor: "#eee",
+                color: "black",
+              }
+        }
+      >
+        Tonči Crljen &copy; 2023{" "}
       </footer>
     </div>
   );

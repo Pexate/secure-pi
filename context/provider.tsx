@@ -5,7 +5,9 @@ import { useState } from "react";
 import { ThemeContext } from "./context";
 import { ToastContainer } from "react-toastify";
 
-export const Provider = ({ children }) => {
+import React, { ReactNode } from "react";
+
+export const Provider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme]: Array<string | Dispatch<SetStateAction<string>>> =
     useState("light");
 
@@ -17,6 +19,7 @@ export const Provider = ({ children }) => {
     <ThemeContext.Provider value={{ theme, changeTheme }}>
       {children}
       <ToastContainer
+        //@ts-ignore
         theme={theme}
         position="bottom-right"
         autoClose={2500}

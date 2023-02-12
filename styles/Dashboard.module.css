@@ -79,14 +79,14 @@
 }
 .pi_name {
   margin: 0;
-  font-size: 24px;
-}
-
-.pi_container_top {
+  font-size: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .recently_connected_pis {
   margin-top: 32px;
+  height: 100%;
 }
 
 .pi_connect_button {
@@ -99,22 +99,7 @@
   margin-left: -16px;
   margin-top: -16px;
   text-align: center;
-}
-
-.avatar_upload_container {
-  display: flex;
-  position: absolute;
-  height: 650px;
-  width: 550px;
-  min-width: 400px !important;
-  min-height: 600px !important;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  font-size: 16px;
 }
 
 .file_input::-webkit-file-upload-button {
@@ -160,9 +145,111 @@
 }
 
 .upload_buttons_container {
+  align-items: center;
+  width: auto;
+  justify-content: center;
+}
+
+.text_display_name {
+  font-size: 36px;
+  text-overflow: "ellipsis";
+  overflow: "hidden";
+  white-space: "nowrap";
+}
+
+.upper_section {
   display: flex;
-  padding-top: 12px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.view_wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  width: 400px;
+}
+
+.dropdown_modal_prompt {
+  background: #232323;
+}
+.dropdown_modal_backdrop {
+  background: white;
+}
+.dropdown_modal_body_dark {
+  background: #232323;
+}
+.dropdown_modal_body_light {
+  background: white;
+}
+.dropdown_modal_header_dark {
+  background: #232323;
+}
+.dropdown_modal_header_light {
+  background: white;
+}
+
+.pencil_edit_button {
+  width: 24px;
+  height: 24px;
+  margin-left: 5px;
+}
+
+.pencil_edit_button:hover {
+  cursor: pointer;
+}
+
+.dropdown_modal_body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 650px;
+}
+
+@media screen and (max-width: 768px) {
+  .text_display_name {
+    font-size: 24px;
+  }
+  .main {
+    @media screen and (max-width: 768px) {
+    }
+
+    height: 200vh;
+  }
+  /*.upper_section {
+    margin-top: -64px;
+  }*/
+  .recently_connected_pis {
+    position: relative;
+  }
+  .recently_connected_pis_content {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .dropdown_modal_body {
+    height: 70vh;
+  }
+}
+
+@media screen and (max-width: 560px) {
+  .display_name_and_email {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+}
+
+@media screen and (max-width: 280px) {
+  .upper_section {
+    width: 100vw;
+  }
 }

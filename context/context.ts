@@ -1,5 +1,7 @@
 import type { Context } from "react";
 import { createContext, useContext } from "react";
 
-export const ThemeContext: Context<string> = createContext("light");
+//@ts-ignore
+export const ThemeContext: Context<{ changeTheme: () => void; theme: string }> =
+  createContext("light");
 export const useThemeContext: Function = () => useContext(ThemeContext);

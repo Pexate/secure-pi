@@ -18,10 +18,11 @@ const createURLFromCrop = async (image: HTMLImageElement, crop: PixelCrop) => {
     URL.revokeObjectURL(previewUrl);
   }
   */
+  //@ts-ignore
   let previewUrl = URL.createObjectURL(blob);
   console.log(previewUrl);
-
-  var file = new File([blob], "name");
+  //@ts-ignore
+  const file = new File([blob], "name");
   return file;
 };
 

@@ -1,5 +1,5 @@
 import { InfinitySpin } from "react-loader-spinner";
-import { useThemeContext } from "/context/context";
+import { useThemeContext } from "context/context";
 
 const Loading = () => {
   const context = useThemeContext();

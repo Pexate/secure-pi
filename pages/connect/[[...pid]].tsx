@@ -1,14 +1,14 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "/styles/Connect.module.css";
-import CustomNavbar from "/components/navbar/navbar";
+import CustomNavbar from "components/navbar/navbar";
 
-import { useThemeContext } from "/context/context";
+import { useThemeContext } from "context/context";
 
-import { stream, connect } from "/firebase/webrtc";
+import { stream, connect } from "../../firebase/webrtc";
 import { auth } from "../../firebase/firebaseconf";
 
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import {
   InputGroup,
@@ -20,14 +20,16 @@ import {
 
 import { useAuthState } from "react-firebase-hooks/auth";
 
+import { useRouter } from "next/router";
+
 const Home: NextPage = () => {
-  const context = useThemeContext();
-  const [id, setId] = useState(null);
-  const [info, setInfo] = useState(null);
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
-  const [user, loading, error] = useAuthState(auth);
-  const textInput = useRef(null);
+  const context: { theme: string; setTheme: () => void } = useThemeContext();
+  const [id, setId] = useState<null | string>(null);
+  const [info, setInfo] = useState<null | {
+    name: string;
+    whitelist: Array<string>;
+  }>(null);
+
   /* This
   const stream = async () => {
     setShowId(true);
@@ -35,6 +37,22 @@ const Home: NextPage = () => {
     setCameraOutput(obj.stream);
   };
   */
+
+  const router = useRouter();
+
+  const [user, loading, error] = useAuthState(auth);
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push("/login");
+    }
+    const { pid } = router.query;
+    console.log(pid);
+    //console.log(pid);
+    if (Array.isArray(pid) && pid[0] && user) {
+      console.log(pid);
+      (async () => await connect(pid[0], document, setInfo, user?.uid))();
+    }
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -61,7 +79,7 @@ const Home: NextPage = () => {
               className={info ? styles.watch_wrapper_info : styles.display_none}
             >
               <b>{info ? info?.name : ""}</b>
-              <p>{info ? info?.id : ""}</p>
+              <p>{info ? id : ""}</p>
             </div>
             <video
               className={
@@ -69,13 +87,15 @@ const Home: NextPage = () => {
                   ? styles.stream_video_light
                   : styles.stream_video_dark
               }
+              id="streamVideo"
               autoPlay
             ></video>
             <InputGroup className={info ? styles.display_none : ""}>
               <FormInput
                 className={styles.id_input}
-                onChange={(e) => {
-                  setId(e.target.value);
+                onChange={(e: FormEvent<any>) => {
+                  const target = e.target as HTMLInputElement;
+                  target && setId(target.value);
                 }}
                 placeholder="Pi id"
                 size="lg"
@@ -84,13 +104,13 @@ const Home: NextPage = () => {
                     ? { color: "white", background: "#232323" }
                     : {}
                 }
-                ref={textInput}
               />
               <InputGroupAddon type="append">
                 <Button
                   theme={context.theme === "dark" ? "light" : "dark"}
                   onClick={async () => {
-                    await connect(id, document, setInfo, user?.uid);
+                    if (id && user)
+                      await connect(id, document, setInfo, user?.uid);
                   }}
                 >
                   Gledaj
@@ -101,14 +121,23 @@ const Home: NextPage = () => {
         </div>
       </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tonči Crljen &copy; 2022{" "}
-        </a>
+      <footer
+        className={styles.footer}
+        style={
+          context.theme === "dark"
+            ? {
+                backgroundColor: "#1d1d1d",
+                border: "none",
+                color: "white",
+              }
+            : {
+                border: "none",
+                backgroundColor: "#eee",
+                color: "black",
+              }
+        }
+      >
+        Tonči Crljen &copy; 2023{" "}
       </footer>
     </div>
   );

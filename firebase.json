@@ -1,0 +1,21 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "source": ".",
+    "public": "out",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/**",
+      "dynamicLinks": true
+    }
+  ]
+}

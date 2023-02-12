@@ -2,35 +2,112 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "/styles/Pi-setup.module.css";
-import CustomNavbar from "/components/navbar/navbar";
+import CustomNavbar from "components/navbar/navbar";
 
-import { useThemeContext } from "/context/context";
+import { useThemeContext } from "context/context";
 
-import { stream, connect } from "/firebase/webrtc";
+import {
+  stream,
+  addToWhitelist,
+  removeFromWhitelist,
+  changeNotificationStatus,
+  checkNotificationStatus,
+} from "../../firebase/webrtc";
 
 import { useEffect, useRef, useState } from "react";
 
 import type { MutableRefObject } from "react";
 
-import { Button } from "shards-react";
+import {
+  Button,
+  Badge,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  FormInput,
+  InputGroupAddon,
+  InputGroup,
+} from "shards-react";
 
 import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "/firebase/firebaseconf";
-import Loading from "/components/loading/loading";
+import { auth } from "../../firebase/firebaseconf";
+import { changeDeviceName } from "../../firebase/firebaseMethods";
+import Loading from "components/loading/loading";
+import {
+  DocumentData,
+  DocumentReference,
+  doc,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
+import { db } from "../../firebase/firebaseconf";
+import { toast } from "react-toastify";
 
 const Setup: NextPage = () => {
   const context = useThemeContext();
-  const [id, setId] = useState<string | null>(null);
   const [active, setActive] = useState<boolean>(false);
   const [blacklist, setBlacklist] = useState<Array<string>>(Array());
+  const [stopDetection, setStopDetection] = useState<boolean>(false);
   const videoRef: MutableRefObject<any> = useRef(null);
   const router = useRouter();
   const [user, loading, error] = useAuthState(auth);
-
+  const [info, setInfo] = useState<
+    { whitelist: Array<string>; name: string } | DocumentData
+  >({ name: "", blacklist: [] });
+  const [whitelistId, setWhitelistId] = useState<null | string>(null);
+  const [open, setOpen] = useState<boolean>(false);
+  const [deviceName, setDeviceName] = useState<string | null>(null);
   useEffect(() => {
-    if (!loading && !user) router.push("/");
-  }, []);
+    if (!loading && !user) router.push("/login");
+
+    const getNotificationStatus = async (): Promise<void> => {
+      if (!user) return;
+      const dataDocRef = doc(db, "users", user.uid);
+      const dataDoc = await getDoc(dataDocRef);
+
+      if (dataDoc.exists()) {
+        setInfo(dataDoc.data());
+        console.log(info);
+      } else {
+        setInfo({ name: "", whitelist: [] });
+      }
+      const notifStatus = await checkNotificationStatus(user?.uid);
+      setStopDetection(!notifStatus);
+    };
+
+    const checkIfNameIsSet = async (): Promise<boolean> => {
+      if (!user) return false;
+
+      const userDocRef: DocumentReference = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        setDoc(userDocRef, { name: "", whitelist: [] });
+        setOpen(true);
+        return false;
+      }
+
+      return !!userDoc.data().name;
+    };
+
+    getNotificationStatus();
+    /*
+    if (user) {
+      (async () => {
+        const dataDocRef = doc(db, "users", user.uid);
+        const dataDoc = await getDoc(dataDocRef);
+
+        if (dataDoc.exists()) {
+          setInfo(dataDoc.data());
+        }
+        const notifStatus = await checkNotificationStatus(user?.uid);
+        setStopDetection(!notifStatus);
+      })();
+    }
+    */
+  }, [user]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -57,7 +134,7 @@ const Setup: NextPage = () => {
                             : styles.light_wrapper
                         }`}
             >
-              <div className={`styles.video_wrapper`}>
+              <div className={styles.video_wrapper}>
                 <video
                   ref={videoRef}
                   id="watchVideo"
@@ -85,7 +162,7 @@ const Setup: NextPage = () => {
               <Button
                 theme={context.theme === "dark" ? "light" : "dark"}
                 onClick={(e) => {
-                  e.target.disabled = true;
+                  (e.target as HTMLButtonElement).disabled = true;
                   (async () => {
                     let videoStream = await navigator.mediaDevices.getUserMedia(
                       {
@@ -93,29 +170,221 @@ const Setup: NextPage = () => {
                         audio: true,
                       }
                     );
-                    await stream(document, videoStream);
+
+                    if (user?.uid)
+                      await stream(document, videoStream, user?.uid);
                     setActive(true);
                   })();
                 }}
               >
-                Stream video output
+                Streamaj video sadržaj
               </Button>
             </div>
-            <div>
-              <h1>Blacklist</h1>
+            <div className={styles.bottom_wrapper}>
+              <div>
+                <Button
+                  theme={stopDetection ? "success" : "danger"}
+                  onClick={() => {
+                    setStopDetection(!stopDetection);
+                    if (user)
+                      (async () =>
+                        await changeNotificationStatus(
+                          user?.uid,
+                          stopDetection
+                        ))();
+                  }}
+                >
+                  {stopDetection
+                    ? "Uključi sustav za slanje obavijesti pokreta"
+                    : "Privremeno prestani slati obavijesti pokreta"}
+                </Button>
+                <p>
+                  Trenutačno stanje:{" "}
+                  <Badge theme={stopDetection ? "danger" : "success"}>
+                    {stopDetection ? "Isključeno" : "Uključeno"}
+                  </Badge>
+                </p>
+              </div>
+              <h2
+                style={{ color: context.theme === "dark" ? "white" : "black" }}
+              >
+                Lista dozvoljenih korisnika
+              </h2>
+              <ul>
+                {info && info.whitelist && info.whitelist.length > 0
+                  ? info.whitelist.map((x: string, i: number) => {
+                      return (
+                        <li key={i}>
+                          <button
+                            className={`${styles.id_of_whitelisted_user} ${
+                              context.theme === "dark"
+                                ? styles.id_of_whitelisted_user_dark
+                                : styles.id_of_whitelisted_user_light
+                            }`}
+                            onClick={(e) => {
+                              if (user)
+                                removeFromWhitelist(
+                                  user?.uid,
+                                  (e.target as HTMLTextAreaElement).innerText
+                                );
+                              const temp_list = [...info.whitelist];
+                              temp_list.splice(
+                                temp_list.indexOf(
+                                  (e.target as HTMLTextAreaElement).innerText
+                                ),
+                                1
+                              );
+                              setInfo({
+                                name: info.name,
+                                whitelist: [...temp_list],
+                              });
+                            }}
+                          >
+                            {x}
+                          </button>
+                        </li>
+                      );
+                    })
+                  : "Nema dozvoljenih korisnika, dodaj dozvoljene korisnike putem polja za unos ispod ovog teksta."}
+              </ul>
+              <InputGroup className={styles.whitelist_id_input_group}>
+                <FormInput
+                  placeholder={"ID osobe"}
+                  className={styles.whitelist_id_input}
+                  onChange={(e) => {
+                    setWhitelistId((e.target as HTMLInputElement).value);
+                  }}
+                  style={
+                    context.theme === "dark"
+                      ? { color: "white", background: "#232323" }
+                      : {}
+                  }
+                />
+                <InputGroupAddon type="append">
+                  <Button
+                    theme={context.theme === "dark" ? "light" : "dark"}
+                    outline={context.theme === "light"}
+                    onClick={() =>
+                      toast.promise(
+                        async () => {
+                          if (user && whitelistId) {
+                            await addToWhitelist(user.uid, whitelistId);
+                            setInfo({
+                              name: info.name,
+                              whitelist: [...info.whitelist, whitelistId],
+                            });
+                          }
+                        },
+                        {
+                          success:
+                            "Uspješno dodan ID na listu dozvoljenih korisnika!",
+                          error:
+                            "Dogodila se greška tijekom dodavanja ID-a na listu dozvoljenih korisnika",
+                          pending:
+                            "Dodavanje ID-a na listu dozvoljenih korisnika...",
+                        }
+                      )
+                    }
+                  >
+                    Dodaj u listu
+                  </Button>
+                </InputGroupAddon>
+              </InputGroup>
             </div>
+            <Modal
+              open={open}
+              toggle={() => {
+                setOpen(!open);
+              }}
+              backdrop={true}
+              size={"lg"}
+              modalContentClassName={styles.dropdown_modal_prompt}
+              modalClassName={styles.dropdown_modal}
+              backdropClassName={styles.dropdown_modal_backdrop}
+            >
+              <ModalHeader
+                className={`${styles.dropdown_modal_header} ${
+                  context.theme === "dark"
+                    ? styles.dropdown_modal_header_dark
+                    : styles.dropdown_modal_header_light
+                }`}
+              >
+                <h4
+                  style={{
+                    color: context.theme === "dark" ? "white" : "#232323",
+                  }}
+                >
+                  {" "}
+                  Unesi ime svog Raspberry Pia!
+                </h4>
+              </ModalHeader>
+              <ModalBody
+                className={
+                  context.theme === "dark"
+                    ? styles.dropdown_modal_body_dark
+                    : styles.dropdown_modal_body_light
+                }
+              >
+                <p
+                  style={{
+                    color: context.theme === "dark" ? "white" : "#232323",
+                  }}
+                >
+                  Da biste mogli prepoznati na koji se uređaj povezujete, bitno
+                  je da unesete lako prepoznatljivo i jedinstveno ime da ne
+                  biste se slučajno povezali na krivi uređaj.
+                </p>
+                <FormInput
+                  placeholder={"Unesite željeno ime uređaja"}
+                  style={
+                    context.theme === "dark"
+                      ? {
+                          color: "white",
+                          background: "#232323",
+                        }
+                      : {}
+                  }
+                  onChange={(e) =>
+                    setDeviceName((e.target as HTMLInputElement).value)
+                  }
+                ></FormInput>
+                <Button
+                  block
+                  outline
+                  //@ts-ignore
+                  theme={context.theme === "dark" ? "white" : "dark"}
+                  style={{ marginTop: 12 }}
+                  onClick={() => {
+                    user &&
+                      deviceName &&
+                      changeDeviceName(deviceName, user.uid);
+                  }}
+                >
+                  <b>Postavi ime uređaja</b>
+                </Button>
+              </ModalBody>
+            </Modal>
           </>
         )}
       </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tonči Crljen &copy; 2022{" "}
-        </a>
+      <footer
+        className={styles.footer}
+        style={
+          context.theme === "dark"
+            ? {
+                backgroundColor: "#1d1d1d",
+                border: "none",
+                color: "white",
+              }
+            : {
+                border: "none",
+                backgroundColor: "#eee",
+                color: "black",
+              }
+        }
+      >
+        Tonči Crljen &copy; 2023{" "}
       </footer>
     </div>
   );
