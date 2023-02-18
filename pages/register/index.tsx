@@ -242,7 +242,7 @@ const Register: NextPage = () => {
             </Form>
             <div
               style={{
-                width: "0.5px",
+                width: "0.6px",
                 background: "rgba(0, 0, 0, 0.35)",
               }}
             ></div>
