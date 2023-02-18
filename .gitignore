@@ -39,7 +39,6 @@ next-env.d.ts
 /certificates
 /.firebase
 /out
-/public
 .env
 .firebase
 /.firebase
