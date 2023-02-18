@@ -1,25 +1,15 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
-import router from "next/router";
 import styles from "/styles/Dashboard.module.css";
 import CustomNavbar from "components/navbar/navbar";
 import Loading from "components/loading/loading";
 
 import { useThemeContext } from "context/context";
 import { useEffect, useState, useRef } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { AuthStateHook, useAuthState } from "react-firebase-hooks/auth";
 import { auth, storage } from "../../firebase/firebaseconf";
 
-import {
-  Badge,
-  Button,
-  Card,
-  FormInput,
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "shards-react";
+import { Button, FormInput, Modal, ModalBody, ModalHeader } from "shards-react";
 
 import {
   changeDeviceName,
@@ -48,7 +38,7 @@ import { User } from "firebase/auth";
 import { HiPencilAlt } from "react-icons/hi";
 import { TbCopy } from "react-icons/tb";
 
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const Dashboard: NextPage = () => {
   const context = useThemeContext();
@@ -78,12 +68,13 @@ const Dashboard: NextPage = () => {
     await logOut();
     router.push("/");
   };
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading, error]: AuthStateHook = useAuthState(auth);
 
   useEffect(() => {
     if ((user === null && loading === false) || error) router.push("/");
     if (user?.photoURL) setPhotoURL(user.photoURL);
     if (user) {
+      console.log(user.emailVerified);
       getRecentPis(user?.uid, setPis);
       setUserID(user.uid);
     }
@@ -156,21 +147,11 @@ const Dashboard: NextPage = () => {
                     onClick={() => {
                       setOpened(true);
                     }}
-                    style={{
-                      border: 0,
-                      padding: 0,
-                      width: 65,
-                      height: 65,
-                    }}
+                    className={styles.profile_picture_button}
                   >
                     <img
                       src={photoURL}
-                      width={65}
-                      height={65}
-                      style={{
-                        marginBottom: 8,
-                        marginRight: 8,
-                      }}
+                      className={styles.profile_picture_wrapper}
                     />
                   </button>
                   <div className={styles.display_name_and_email}>
@@ -225,13 +206,17 @@ const Dashboard: NextPage = () => {
 
                   <Button
                     //@ts-ignore
-                    theme={context.theme === "dark" ? "white" : "dark"}
-                    className={styles.log_out_button}
+                    theme={context.theme === "dark" ? "light" : "dark"}
+                    className={`${styles.log_out_button} ${
+                      context.theme === "dark"
+                        ? styles.log_out_button_dark
+                        : styles.log_out_button_light
+                    }`}
                     outline
                     block
                     onClick={() => logOutClick()}
                   >
-                    <b>Odjavi se</b>
+                    Odjavi se
                   </Button>
                 </div>
 

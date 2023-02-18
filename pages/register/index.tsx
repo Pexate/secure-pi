@@ -9,8 +9,10 @@ import { useThemeContext } from "context/context";
 import { Form, FormInput, FormGroup, Button } from "shards-react";
 
 import {
+  SendEmailVerificationHook,
   useAuthState,
   useCreateUserWithEmailAndPassword,
+  useSendEmailVerification,
 } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebaseconf";
 import {
@@ -24,7 +26,7 @@ import Link from "next/link";
 
 import { useRouter } from "next/router";
 
-import { UserCredential } from "firebase/auth";
+import { sendEmailVerification } from "firebase/auth";
 
 import { ToastContainer, toast } from "react-toastify";
 
@@ -38,13 +40,19 @@ const Register: NextPage = () => {
   const [username, setUsername] = useState("");
   const router = useRouter();
 
+  //const [sendEmailVerification, sending, error1]: SendEmailVerificationHook =
+  //  useSendEmailVerification(auth);
+
   useEffect(() => {
-    user2 && router.push("/dashboard");
+    if (user2) {
+      router.push("/dashboard");
+    }
   }, [user2]);
 
   useEffect(() => {
     if (user) {
       updateUserProfile({ displayName: username });
+      sendEmailVerification(user.user);
       try {
         //@ts-ignore
         setRegistrationInfo(username, user.user.uid);
@@ -56,7 +64,6 @@ const Register: NextPage = () => {
   }, [user]);
 
   const registerClick = async (): Promise<void> => {
-    console.log(email, password);
     email &&
       password &&
       createUserWithEmailAndPassword &&
@@ -172,12 +179,17 @@ const Register: NextPage = () => {
                 outline
                 block
                 onClick={() =>
-                  toast.promise(registerClick, {
-                    pending: "Registracija u tijeku...",
-                    success: "Uspješno je napravljen korisnički račun!",
-                    error:
-                      "Dogodila se greška tijekom stvaranja korisničkog računa...",
-                  }) as unknown as MouseEventHandler
+                  toast.promise(
+                    registerClick,
+                    {
+                      pending: "Registracija u tijeku...",
+                      success:
+                        "Uspješno je napravljen korisnički račun! Provjerite svoju e-poštu kako biste potvrdili svoju e-adresu!",
+                      error:
+                        "Dogodila se greška tijekom stvaranja korisničkog računa...",
+                    },
+                    { autoClose: 7000 }
+                  ) as unknown as MouseEventHandler
                 }
               >
                 <b>Registriraj</b>
