@@ -7,6 +7,10 @@
   align-items: center;
 }
 
+.register_form {
+  width: 50vw;
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -20,11 +24,13 @@
 }
 
 .content_wrapper {
-  width: clamp(50px, 100%, 600px);
+  width: 85vw;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: space-around;
 }
 
 .view_one {
@@ -33,6 +39,55 @@
 
 .dark {
   background-color: black !important;
+}
+
+.github_login_button {
+  background: #1b1f23 !important;
+  color: white;
+}
+
+.google_login_button {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.facebook_login_button {
+  background: #003d7a !important;
+  color: white;
+}
+
+.microsoft_login_button {
+  background: #383838 !important;
+  color: white;
+}
+
+.twitter_login_button {
+  background: #51bfff !important;
+  color: white;
+}
+
+.login_button:hover {
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.75);
+}
+
+.login_button {
+  border: 0;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+  background: 0;
+  font-family: "Roboto" !important;
+  font-weight: 400;
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.login_buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 @media screen and (max-width: 480px) {

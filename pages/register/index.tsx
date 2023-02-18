@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 
 import styles from "/styles/Register.module.css";
 
@@ -10,9 +11,15 @@ import { Form, FormInput, FormGroup, Button } from "shards-react";
 
 import {
   SendEmailVerificationHook,
+  SignInWithPopupHook,
   useAuthState,
   useCreateUserWithEmailAndPassword,
   useSendEmailVerification,
+  useSignInWithFacebook,
+  useSignInWithGithub,
+  useSignInWithGoogle,
+  useSignInWithMicrosoft,
+  useSignInWithTwitter,
 } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebaseconf";
 import {
@@ -39,6 +46,40 @@ const Register: NextPage = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const router = useRouter();
+  const [
+    signInWithGoogle,
+    googleUser,
+    googleLoading,
+    googleError,
+  ]: SignInWithPopupHook = useSignInWithGoogle(auth);
+
+  const [
+    signInWithGithub,
+    githubUser,
+    githubLoading,
+    githubError,
+  ]: SignInWithPopupHook = useSignInWithGithub(auth);
+
+  const [
+    signInWithFacebook,
+    facebookUser,
+    facebookLoading,
+    facebookError,
+  ]: SignInWithPopupHook = useSignInWithFacebook(auth);
+
+  const [
+    signInWithMicrosoft,
+    microsoftUser,
+    microsoftLoading,
+    microsoftError,
+  ]: SignInWithPopupHook = useSignInWithMicrosoft(auth);
+
+  const [
+    signInWithTwitter,
+    twitterUser,
+    twitterLoading,
+    twitterError,
+  ]: SignInWithPopupHook = useSignInWithTwitter(auth);
 
   //const [sendEmailVerification, sending, error1]: SendEmailVerificationHook =
   //  useSendEmailVerification(auth);
@@ -199,6 +240,79 @@ const Register: NextPage = () => {
                 Već registriran? <Link href="/login">Prijavi se ovdje.</Link>
               </p>
             </Form>
+            <div
+              style={{
+                width: "0.5px",
+                background: "rgba(0, 0, 0, 0.35)",
+              }}
+            ></div>
+            <div className={styles.login_buttons}>
+              <button
+                onClick={() => signInWithGoogle()}
+                className={`${styles.google_login_button} ${styles.login_button}`}
+              >
+                <Image
+                  src={"/google_logo.png"}
+                  width={22}
+                  height={22}
+                  alt="Google logo"
+                  style={{ marginRight: 16 }}
+                />
+                Prijavi se s Googlom{" "}
+              </button>
+              <button
+                onClick={() => signInWithGithub()}
+                className={`${styles.github_login_button} ${styles.login_button}`}
+              >
+                <Image
+                  src={"/github.svg"}
+                  width={22}
+                  height={22}
+                  alt="Github logo"
+                  style={{ marginRight: 16, filter: "invert(100%)" }}
+                />
+                Prijavi se s GitHubom{" "}
+              </button>
+              <button
+                onClick={() => signInWithFacebook()}
+                className={`${styles.facebook_login_button} ${styles.login_button}`}
+              >
+                <Image
+                  src={"/white_facebook.png"}
+                  width={24}
+                  height={24}
+                  alt="Facebook logo"
+                  style={{ marginRight: 16 }}
+                />
+                Prijavi se s Facebookom{" "}
+              </button>
+              <button
+                onClick={() => signInWithMicrosoft()}
+                className={`${styles.microsoft_login_button} ${styles.login_button}`}
+              >
+                <Image
+                  src={"/microsoft.png"}
+                  width={20}
+                  height={20}
+                  alt="Google logo"
+                  style={{ marginRight: 16 }}
+                />
+                Prijavi se s Microsoftom{" "}
+              </button>
+              <button
+                onClick={() => signInWithTwitter()}
+                className={`${styles.twitter_login_button} ${styles.login_button}`}
+              >
+                <Image
+                  src={"/twitter.png"}
+                  width={22}
+                  height={22}
+                  alt="Twitter logo"
+                  style={{ marginRight: 16 }}
+                />
+                Prijavi se s Twitterom{" "}
+              </button>
+            </div>
           </div>
         </main>
       </div>
