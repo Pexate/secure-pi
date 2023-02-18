@@ -21,7 +21,7 @@ const nextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
-  /*
+
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
@@ -29,7 +29,6 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-  */
 };
 
 module.exports = nextConfig;

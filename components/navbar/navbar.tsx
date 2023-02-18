@@ -36,7 +36,6 @@ import { connectFirestoreEmulator } from "firebase/firestore";
 import useWindowDimensions from "hooks/useWindowDimensions";
 
 import { BiMenuAltRight } from "react-icons/bi";
-import { style } from "@mui/system";
 
 const CustomNavbar: FunctionComponent = () => {
   const context: { theme: string; changeTheme: () => void } = useThemeContext();
@@ -184,6 +183,17 @@ const CustomNavbar: FunctionComponent = () => {
                       Gledaj
                     </div>
                   </Link>
+                  <Link href="/help">
+                    <div
+                      className={`${styles.menu_dropdown_item} ${
+                        context.theme === "dark"
+                          ? styles.menu_dropdown_item_dark
+                          : styles.menu_dropdown_item_light
+                      }`}
+                    >
+                      Upute
+                    </div>
+                  </Link>
                 </>
               ) : (
                 <>
@@ -207,6 +217,17 @@ const CustomNavbar: FunctionComponent = () => {
                       }`}
                     >
                       Prijavi se
+                    </div>
+                  </Link>
+                  <Link href="/help">
+                    <div
+                      className={`${styles.menu_dropdown_item} ${
+                        context.theme === "dark"
+                          ? styles.menu_dropdown_item_dark
+                          : styles.menu_dropdown_item_light
+                      }`}
+                    >
+                      Upute
                     </div>
                   </Link>
                 </>
@@ -241,24 +262,23 @@ const CustomNavbar: FunctionComponent = () => {
                   </>
                 ) : (
                   <>
-                    <Link
-                      href="/register"
-                      className={styles.navlink}
-                      style={{ textDecoration: "none" }}
-                    >
-                      <NavLink style={{ cursor: "pointer" }}>
-                        Registriraj se
-                      </NavLink>
-                    </Link>
-                    <Link
-                      href="/login"
-                      className={styles.navlink}
-                      style={{ textDecoration: "none" }}
-                    >
-                      <NavLink style={{ cursor: "pointer" }}>
-                        Prijavi se
-                      </NavLink>
-                    </Link>
+                    {[
+                      ["register", "Registriraj se"],
+                      ["login", "Prijavi se"],
+                      ["help", "Upute"],
+                    ].map((x, i) => {
+                      return (
+                        <Link
+                          href={`/${x[0]}`}
+                          className={styles.navlink}
+                          style={{ textDecoration: "none" }}
+                        >
+                          <NavLink style={{ cursor: "pointer" }}>
+                            {x[1]}
+                          </NavLink>
+                        </Link>
+                      );
+                    })}
                   </>
                 )}
               </Nav>

@@ -150,11 +150,6 @@ const connect = async (
       updateDoc(recentDoc, { recent: recentConnections });
     }
   }
-
-  try {
-  } catch (e) {
-    console.log("failed");
-  }
 };
 
 const stream = async (
@@ -409,7 +404,7 @@ const checkNotificationStatus = async (uid: string): Promise<boolean> => {
   const notificationDoc = await getDoc(notificationDocRef);
 
   if (!notificationDoc.exists()) {
-    await setDoc(notificationDocRef, { status: true });
+    await updateDoc(notificationDocRef, { status: true });
     return true;
   }
 
@@ -422,7 +417,7 @@ const changeNotificationStatus = async (
 ): Promise<void> => {
   const notificationDocRef = doc(db, "notifications", uid);
 
-  await setDoc(notificationDocRef, { status: status });
+  await updateDoc(notificationDocRef, { status: status });
 };
 
 export {

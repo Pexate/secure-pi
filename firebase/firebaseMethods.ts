@@ -8,7 +8,7 @@ import {
   User,
 } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { getMessaging, getToken } from "firebase/messaging";
+import { Messaging, getMessaging, getToken } from "firebase/messaging";
 import {
   ref,
   uploadBytes,
@@ -16,7 +16,19 @@ import {
   StorageReference,
 } from "firebase/storage";
 
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  CollectionReference,
+  DocumentData,
+  DocumentReference,
+  DocumentSnapshot,
+  QuerySnapshot,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 import { initializeApp } from "firebase/app";
 
@@ -54,8 +66,8 @@ const logOut = async () => {
 
 const setRegistrationInfo = async (name: string, uid: string) => {
   console.log(name, uid);
-  const userDocRef = doc(db, "users", uid);
-  const userDoc = await getDoc(userDocRef);
+  const userDocRef: DocumentReference = doc(db, "users", uid);
+  const userDoc: DocumentSnapshot<DocumentData> = await getDoc(userDocRef);
 
   if (userDoc.exists()) return;
 
@@ -64,14 +76,15 @@ const setRegistrationInfo = async (name: string, uid: string) => {
 
 const requestPermission = async () => {
   console.log("Requesting permission...");
-  const permission = await Notification.requestPermission();
+  const permission: NotificationPermission =
+    await Notification.requestPermission();
   if (permission === "granted") console.log("Notification permission granted.");
   let token = await getMessagingToken();
   console.log(token);
 };
 
 const getMessagingToken = async () => {
-  const messaging = getMessaging();
+  const messaging: Messaging = getMessaging();
   const token = await getToken(messaging, { vapidKey: process.env.vapidKey });
   return token;
 };
@@ -88,8 +101,8 @@ const setProfilePicture = async (file: File, user: User) => {
 };
 
 const changeDeviceName = async (name: string, uid: string): Promise<void> => {
-  const userDocRef = doc(db, "users", uid);
-  const userDoc = await getDoc(userDocRef);
+  const userDocRef: DocumentReference = doc(db, "users", uid);
+  const userDoc: DocumentSnapshot<DocumentData> = await getDoc(userDocRef);
 
   if (!userDoc.exists()) {
     setDoc(userDocRef, { name: name, whitelist: [] });
@@ -105,6 +118,45 @@ const changeUsername = async (name: string): Promise<void> => {
     (await updateProfile(auth.currentUser, { displayName: name }));
 };
 
+const addNotificationId = async (id: string, userId: string): Promise<void> => {
+  const userDocRef: DocumentReference = doc(db, "notifications", userId);
+  const userDoc: DocumentSnapshot<DocumentData> = await getDoc(userDocRef);
+
+  if (!userDoc.exists()) {
+    setDoc(userDocRef, { status: true, devices: [id] });
+    return;
+  }
+
+  const data = userDoc.data();
+  if (data.hasOwnProperty("devices")) {
+    if (data.devices.includes(id)) {
+      return;
+    }
+
+    updateDoc(userDocRef, { devices: [...data.devices, id] });
+    return;
+  }
+
+  updateDoc(userDocRef, { devices: [id] });
+};
+
+const getAllUserIds = async (): Promise<Array<string>> => {
+  const userCollectionRef: CollectionReference<DocumentData> = collection(
+    db,
+    "users"
+  );
+  const allUsers: QuerySnapshot<DocumentData> = await getDocs(
+    userCollectionRef
+  );
+  const ids: Array<string> = [];
+
+  allUsers.forEach((user) => {
+    ids.push(user.id);
+  });
+
+  return ids;
+};
+
 export {
   requestPermission,
   logOut,
@@ -115,4 +167,6 @@ export {
   setRegistrationInfo,
   changeDeviceName,
   changeUsername,
+  addNotificationId,
+  getAllUserIds,
 };

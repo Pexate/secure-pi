@@ -73,7 +73,12 @@ const Help = () => {
           </Collapse>
 
           <button
-            style={{ border: "none", background: "none", cursor: "pointer" }}
+            style={{
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              marginBottom: 16,
+            }}
             onClick={() => setOpen2(!open2)}
           >
             <b style={{ color: context.theme === "dark" ? "white" : "black" }}>
@@ -93,7 +98,7 @@ const Help = () => {
             <p
               style={{
                 color: context.theme === "dark" ? "white" : "black",
-                padding: 16,
+                padding: "0 16px 16px 16px",
               }}
             >
               Kada se prijavite u vaš račun, morati stisnuti gumb "Gledaj" koji
@@ -105,6 +110,38 @@ const Help = () => {
               uređaja. Bitno je za napomenuti da korisnikov id (koji se može
               nači na stranici koriničkog računa) treba biti unutar liste
               dozvoljenih korisnika kako bi mogao pristupiti video sadržaju.
+            </p>
+          </Collapse>
+          <button
+            style={{ border: "none", background: "none", cursor: "pointer" }}
+            onClick={() => setOpen3(!open3)}
+          >
+            <b style={{ color: context.theme === "dark" ? "white" : "black" }}>
+              Promjena profilne slike
+            </b>
+            <IoMdArrowDropdown
+              style={{
+                width: 24,
+                height: 24,
+                filter: context.theme === "dark" ? "invert(100%)" : "",
+                transform: open3 ? "rotate(0deg)" : "rotate(-90deg)",
+              }}
+            />
+          </button>
+
+          <Collapse open={open3}>
+            <p
+              style={{
+                color: context.theme === "dark" ? "white" : "black",
+                padding: 16,
+              }}
+            >
+              Kada se prijavite, nalazit ćete se na stranici koriničkog računa.
+              Klikom na sliku koja se nalazi iznad korisničkog imena i e-pošte
+              se spušta dijaloški okvir u kojemu moramo stisnuti gumb "Odaberi
+              sliku". Kada odaberemo, tu sliku možemo izrezati i kada smo gotovi
+              s rezanjem, pritisnuti gumb "Izmjeni profilnu sliku". <br />
+              <br /> Ubrzo će profilna slika biti izmjenjena.
             </p>
           </Collapse>
         </div>

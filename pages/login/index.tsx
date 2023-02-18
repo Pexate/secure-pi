@@ -77,7 +77,7 @@ const Login: NextPage = () => {
         <CustomNavbar />
         <main className={styles.main}>
           <div className={styles.content_wrapper}>
-            <Form>
+            <Form className={styles.login_form}>
               <h3
                 style={{
                   marginBottom: 32,
@@ -94,6 +94,7 @@ const Login: NextPage = () => {
                   E-mail
                 </label>
                 <FormInput
+                  className={styles.form_input}
                   id="#email"
                   placeholder="Unesi ovdje"
                   style={
@@ -117,6 +118,7 @@ const Login: NextPage = () => {
                   Lozinka
                 </label>
                 <FormInput
+                  className={styles.form_input}
                   type="password"
                   id="#password"
                   placeholder="Unesi ovdje"

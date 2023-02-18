@@ -26,6 +26,8 @@ import {
   changeUsername,
   logOut,
   setProfilePicture,
+  requestPermission,
+  addNotificationId,
 } from "../../firebase/firebaseMethods";
 
 import { useRouter } from "next/router";
@@ -44,22 +46,9 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { User } from "firebase/auth";
 
 import { HiPencilAlt } from "react-icons/hi";
+import { TbCopy } from "react-icons/tb";
 
 import { ToastContainer, toast } from "react-toastify";
-
-export interface ModalBodyProps {
-  term: string;
-}
-
-export interface ModalBodyProps {
-  children: Element[];
-  className: string;
-}
-
-export interface IntrinsicAttributes {
-  children: Element[];
-  className: string;
-}
 
 const Dashboard: NextPage = () => {
   const context = useThemeContext();
@@ -81,6 +70,7 @@ const Dashboard: NextPage = () => {
   const [deviceName, setDeviceName] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [userID, setUserID] = useState<string | null>(null);
+  const [messagingId, setMessagingId] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -93,7 +83,13 @@ const Dashboard: NextPage = () => {
   useEffect(() => {
     if ((user === null && loading === false) || error) router.push("/");
     if (user?.photoURL) setPhotoURL(user.photoURL);
+    if (user) {
+      getRecentPis(user?.uid, setPis);
+      setUserID(user.uid);
+    }
+  }, [user, loading, error, shown]);
 
+  useEffect(() => {
     const messaging = getMessaging();
     getToken(messaging, {
       vapidKey:
@@ -101,44 +97,27 @@ const Dashboard: NextPage = () => {
     })
       .then((currentToken) => {
         if (currentToken) {
+          setMessagingId(currentToken);
+          user && addNotificationId(currentToken, user.uid);
           console.log("TOKEN ZA SLANJE OBAVIJESTI:", currentToken);
-          // Send the token to your server and update the UI if necessary
-          // ...
         } else {
-          // Show permission request UI
-          console.log(
-            "No registration token available. Request permission to generate one."
+          requestPermission();
+          toast.error(
+            "Morate prihvatiti da SecurePi može slati obavjesti kako biste mogli primati obavjesti pri detekciji pokreta!"
           );
-          // ...
         }
       })
       .catch((err) => {
-        console.log("An error occurred while retrieving token. ", err);
-        // ...
+        requestPermission();
+        toast.error(
+          "Morate prihvatiti da SecurePi može slati obavjesti kako biste mogli primati obavjesti pri detekciji pokreta!"
+        );
       });
 
     onMessage(messaging, (payload) => {
-      console.log("Message received. ", payload);
-      payload.data &&
-        new Notification(payload.data.title, {
-          body: JSON.parse(payload.data.body).name,
-        });
-      // ...
+      payload.data && new Notification("Pokret detektiran!");
     });
-
-    /*
-    (async () => {
-      let a = await checkIfWhitelisted(
-        "Aax3WfLmvoU9iOgtfqGVdizc5rt2",
-        "192.168.1.1"
-      );
-    })();
-    */
-    if (user) {
-      getRecentPis(user?.uid, setPis);
-      setUserID(user?.uid);
-    }
-  }, [user, loading, error, shown]);
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -222,8 +201,23 @@ const Dashboard: NextPage = () => {
                             }}
                           />
                         </span>
-                        <div style={{ textAlign: "center", paddingBottom: 8 }}>
-                          <b>{"Korisnikov ID: " + userID}</b>
+                        <div style={{ textAlign: "center" }}>
+                          {"Korisnikov ID: " + userID}
+                        </div>
+                        <div className={styles.messaging_id_and_button}>
+                          Messaging ID:
+                          {messagingId
+                            ? " " + messagingId?.slice(0, 20) + "..."
+                            : "??"}
+                          <TbCopy
+                            onClick={() => {
+                              if (messagingId) {
+                                navigator.clipboard.writeText(messagingId);
+                                toast.info("Kopirano u međuspremnik");
+                              }
+                            }}
+                            className={styles.pencil_edit_button}
+                          />
                         </div>
                       </>
                     )}
@@ -243,13 +237,13 @@ const Dashboard: NextPage = () => {
 
                 <div className={styles.recently_connected_pis}>
                   <div className={styles.recently_connected_pis_content}>
-                    <b style={{ fontSize: 24, marginRight: 8 }}>
+                    <p style={{ fontSize: 24, marginRight: 8 }}>
                       Prethodno povezani Pievi
-                    </b>{" "}
+                    </p>{" "}
                     <div className={styles.pi_container_container}>
                       {pis !== null
                         ? //@ts-ignore
-                          pis.recent.map((e) => {
+                          pis.recent.map((e, i) => {
                             if (e)
                               return (
                                 <div
@@ -258,24 +252,10 @@ const Dashboard: NextPage = () => {
                                       ? styles.pi_container_dark
                                       : styles.pi_container_light
                                   }`}
+                                  key={i}
                                 >
-                                  <div
-                                    className={styles.pi_status_indicator}
-                                    style={{
-                                      backgroundColor:
-                                        e.status === "online"
-                                          ? "green"
-                                          : "#aa2211",
-                                    }}
-                                  >
-                                    {e.status === "online"
-                                      ? "Aktivan"
-                                      : "Neaktivan"}
-                                  </div>
                                   <div className={styles.pi_container_top}>
-                                    <p className={styles.pi_name}>
-                                      <b>{e}</b>
-                                    </p>
+                                    <p className={styles.pi_name}>{e}</p>
                                   </div>
                                   <Button
                                     disabled={e.status === "offline"}
