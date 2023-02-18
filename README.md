@@ -1,34 +1,34 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# SecurePi
 
-## Getting Started
+Ovdje možete naći izvorni kôd stranice sustava SecurePi.
 
-First, run the development server:
+### Što je SecurePi?
+**SecurePi je sustav za nadzor objekta**. Sastoji se od fizičkog dijela (kutija koja je oslanja na vrata u kojoj se nalaze infracrvena kamera, PIR (pasivni infracrveni senzor), eksperimentalna pločica i Raspberry Pi) i programskog dijela (kôd stranice i kôd koji se pokreče na Raspberryu). Korisnik preko stranice može gledati što se to zapravo događa ispred njegovih vrata i primati notifikacije na svim povezanim uređajima pri detekciji pokreta.
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+### U čemu je SecurePi napravljen?
+Stranica je napravljena u okruženju Next.js (React.js + Typescript). *Hosting* stranice, online baza podataka, autentifikacija korisnika 
+Izvorni se kôd ne može pokrečati putem npm-a, kako biste mogli posjetiti stranicu sustava SecurePi morate ići na [sljedeću poveznicu](https://sccure-pi.web.app). UI stranice je večinom napravljen koristeći Shards React, knjižnica komponenti za React.js. 
+Kôd koji se pokreče na Raspberryu koristi programski jezik Python s modulima Firebase (dohvačanje korisničkih podataka), OpenCV (snimanje video prijenosa infracrvene kamere) i GPIO (za prepoznavanje osobe putem PIR senzora).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Razvoj SecurePia
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Svibanj 2022. - posudba Raspberry Pia i brainstorming ideje
+ 
+Lipanj 2022. - početak razvoja stranice, prva ideja za kutiju, raspitivanje i Crypto Intership u splitskoj softverskoj tvrtci *Blank*
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Rujan 2022. - ponovni razvoj stranice (prva stranica je koristila knjižnicu komponenti Bootstrap s kojom nisam bio zadovoljan)
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Listopad 2022. - finaliziran izgled stranice
 
-## Learn More
+Studeni 2022. - prikupljanje potrebnih dijelova za kutiju
 
-To learn more about Next.js, take a look at the following resources:
+Prosinac 2022. - razvoj stranice
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Siječanj 2023. - zadnji prototip i razvoj stranice (korisnički račun)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Veljača 2023. - finalizacija kutije i stranice
 
-## Deploy on Vercel
+### Dokumentacija
+Dokumentacija se može naći na [sljedećoj poveznici](https://pdfhost.io/v/Tozimw~w6_Tehnika_Dokumentacija_SecurePi).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+###### © Tonči Crljen 2023
