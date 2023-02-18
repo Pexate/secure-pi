@@ -85,7 +85,7 @@ const Register: NextPage = () => {
           }}
         >
           <div className={styles.content_wrapper}>
-            <Form>
+            <Form className={styles.register_form}>
               <h3
                 style={{
                   marginBottom: 32,
@@ -102,6 +102,7 @@ const Register: NextPage = () => {
                   Korisničko ime
                 </label>
                 <FormInput
+                  className={styles.form_input}
                   type="text"
                   id="#username"
                   placeholder="Unjeti ovdje"
@@ -126,6 +127,7 @@ const Register: NextPage = () => {
                   E-mail adresa
                 </label>
                 <FormInput
+                  className={styles.form_input}
                   type="email"
                   id="#email"
                   placeholder="Unjeti ovdje"
@@ -150,6 +152,7 @@ const Register: NextPage = () => {
                   Lozinka
                 </label>
                 <FormInput
+                  className={styles.form_input}
                   type="password"
                   id="#password"
                   placeholder="Unjeti ovdje"

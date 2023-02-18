@@ -27,6 +27,7 @@
   text-align: center;
   display: flex;
   flex-direction: column;
+  z-index: 10;
 }
 
 .dropdown_menu_button_dark {
@@ -47,8 +48,8 @@
 }
 
 .menu_dropdown_light {
-  background: #efefef;
   color: white;
+  background: #fff;
 }
 
 .menu_dropdown_item_dark {

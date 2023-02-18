@@ -9,11 +9,9 @@ const chivo = Chivo({ subsets: ["latin-ext"] });
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <main className={chivo.className}>
-      <Provider>
-        <Component {...pageProps} />
-      </Provider>
-    </main>
+    <Provider>
+      <Component {...pageProps} className={chivo.className} />
+    </Provider>
   );
 }
 

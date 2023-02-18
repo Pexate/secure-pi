@@ -212,14 +212,31 @@
   height: 650px;
 }
 
-@media screen and (max-width: 768px) {
+.messaging_copy_button {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.messaging_id_and_button {
+  text-align: center;
+}
+
+.pi_container_top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  text-align: center;
+}
+
+@media screen and (max-width: 840px) {
   .text_display_name {
     font-size: 24px;
   }
   .main {
-    @media screen and (max-width: 768px) {
-    }
-
     height: 200vh;
   }
   /*.upper_section {
@@ -239,7 +256,7 @@
   }
 }
 
-@media screen and (max-width: 560px) {
+@media screen and (max-width: 720px) {
   .display_name_and_email {
     display: flex;
     flex-direction: column;

@@ -40,3 +40,5 @@ next-env.d.ts
 /.firebase
 /out
 /public
+
+.env

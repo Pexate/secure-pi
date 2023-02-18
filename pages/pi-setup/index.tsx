@@ -198,7 +198,11 @@ const Setup: NextPage = () => {
                     ? "Uključi sustav za slanje obavijesti pokreta"
                     : "Privremeno prestani slati obavijesti pokreta"}
                 </Button>
-                <p>
+                <p
+                  style={{
+                    color: context.theme === "dark" ? "white" : "black",
+                  }}
+                >
                   Trenutačno stanje:{" "}
                   <Badge theme={stopDetection ? "danger" : "success"}>
                     {stopDetection ? "Isključeno" : "Uključeno"}
@@ -210,7 +214,9 @@ const Setup: NextPage = () => {
               >
                 Lista dozvoljenih korisnika
               </h2>
-              <ul>
+              <ul
+                style={{ color: context.theme === "dark" ? "white" : "black" }}
+              >
                 {info && info.whitelist && info.whitelist.length > 0
                   ? info.whitelist.map((x: string, i: number) => {
                       return (
