@@ -12,14 +12,10 @@ jobs:
     steps:
       - uses: actions/cache@v2 # [H]
         with:
-          path: ${{ github.workspace }}/node_modules
           path: |
             ${{ github.workspace }}/node_modules
             ${{ github.workspace }}/.next/cache # [I]
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}
-          # Generate a new cache whenever packages or source files change.
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js') }}
-          # If source files changed but packages didn't, rebuild from a prior cache. 
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
       - uses: actions/checkout@main
