@@ -17,22 +17,9 @@ import {
   deleteField,
 } from "firebase/firestore";
 import { db } from "./firebaseconf";
+import { getDeviceName } from "./firebaseMethods";
 
 import type { DataConnection, Peer } from "peerjs";
-
-import { initializeApp } from "firebase/app";
-
-const firebaseConfig: object = {
-  apiKey: process.env.APIKEY,
-  authDomain: process.env.AUTHDOMAIN,
-  projectId: process.env.PROJECTID,
-  storageBucket: process.env.STORAGEBUCKET,
-  messagingSenderId: process.env.MESSAGINGSENDERID,
-  appId: process.env.APPID,
-  measurementId: process.env.MEASUREMENTID,
-};
-
-initializeApp(firebaseConfig);
 
 const servers = {
   iceServers: [
@@ -347,11 +334,19 @@ const stream = async (
 };
 
 const getRecentPis = async (id: string, setPis: Function): Promise<void> => {
-  const idDocRef = doc(db, "recent", id);
-  const idDoc = await getDoc(idDocRef);
+  const idDocRef: DocumentReference<DocumentData> = doc(db, "recent", id);
+  const idDoc: DocumentSnapshot<DocumentData> = await getDoc(idDocRef);
+  const pis = [];
 
   if (idDoc.exists()) {
-    setPis(idDoc.data());
+    let recent = idDoc.data().recent;
+    recent.forEach(async (recentId: string) => {
+      const name = await getDeviceName(recentId);
+      console.log(name, { id: recentId, name: name });
+      pis.push({ id: recentId, name: name });
+    });
+    console.log(pis);
+    setPis(pis);
   }
 };
 

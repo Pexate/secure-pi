@@ -89,12 +89,15 @@ const Dashboard: NextPage = () => {
     if (user?.photoURL) setPhotoURL(user.photoURL);
     if (user) {
       console.log(user.emailVerified);
-      getRecentPis(user?.uid, setPis);
-      setUserID(user.uid);
     }
   }, [user, loading, error, shown]);
 
   useEffect(() => {
+    if (user) {
+      !pis && getRecentPis(user?.uid, setPis);
+      setUserID(user.uid);
+    }
+    console.log(pis);
     const messaging = getMessaging();
     getToken(messaging, {
       vapidKey:
@@ -241,8 +244,7 @@ const Dashboard: NextPage = () => {
                     </p>{" "}
                     <div className={styles.pi_container_container}>
                       {pis !== null
-                        ? //@ts-ignore
-                          pis.recent.map((e, i) => {
+                        ? pis.map((e, i) => {
                             if (e)
                               return (
                                 <div
@@ -254,10 +256,14 @@ const Dashboard: NextPage = () => {
                                   key={i}
                                 >
                                   <div className={styles.pi_container_top}>
-                                    <p className={styles.pi_name}>{e}</p>
+                                    <p className={styles.pi_name}>
+                                      <b style={{ fontWeight: 600 }}>
+                                        {e.name}
+                                      </b>
+                                    </p>
+                                    <p className={styles.pi_name}>{e.id}</p>
                                   </div>
                                   <Button
-                                    disabled={e.status === "offline"}
                                     theme={
                                       context.theme === "dark"
                                         ? "light"

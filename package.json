@@ -11,9 +11,11 @@
   "dependencies": {
     "@next/font": "^13.1.6",
     "@types/firebase": "^3.2.1",
+    "babel-polyfill": "^6.26.0",
     "dotenv": "^16.0.2",
     "firebase": "^9.10.0",
     "next": "^13.1.6",
+    "oidc-client": "^1.11.5",
     "peerjs": "^1.4.7",
     "react": "^18.2.0",
     "react-avatar-editor": "^13.0.0",

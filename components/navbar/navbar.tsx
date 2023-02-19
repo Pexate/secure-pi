@@ -21,6 +21,7 @@ import {
   Container,
   Row,
   Col,
+  Tooltip,
 } from "shards-react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -43,6 +44,7 @@ const CustomNavbar: FunctionComponent = () => {
   const [profileNameColor, setProfileNameColor] = useState<boolean>(false);
   const { height, width } = useWindowDimensions();
   const [dropdownMenu, setDropdownMenu] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   const changeProfileNameColor = () => {
     setProfileNameColor(!profileNameColor);
@@ -147,7 +149,9 @@ const CustomNavbar: FunctionComponent = () => {
                     : styles.dropdown_menu_button_light
                 }`}
               >
-                <BiMenuAltRight style={{ width: 26, height: 26 }} />
+                <BiMenuAltRight
+                  style={{ width: 26, height: 26, marginLeft: -8 }}
+                />
               </button>
             </NavItem>
           </Nav>
@@ -286,30 +290,7 @@ const CustomNavbar: FunctionComponent = () => {
               ""
             )}
 
-            <Nav navbar className="ml-auto">
-              <NavItem>
-                {user ? (
-                  <Badge
-                    theme={
-                      context.theme === "dark"
-                        ? profileNameColor
-                          ? "dark"
-                          : "light"
-                        : profileNameColor
-                        ? "light"
-                        : "dark"
-                    }
-                    style={{ marginRight: 8, cursor: "pointer", fontSize: 12 }}
-                    onMouseOver={() => changeProfileNameColor()}
-                    onMouseOut={() => changeProfileNameColor()}
-                    onClick={() => router.push("/dashboard")}
-                  >
-                    {user.displayName}
-                  </Badge>
-                ) : (
-                  ""
-                )}
-              </NavItem>
+            <Nav navbar className={`ml-auto ${styles.right_side_of_nav}`}>
               <NavItem>
                 <button
                   style={{
@@ -330,10 +311,27 @@ const CustomNavbar: FunctionComponent = () => {
                         context.theme === "dark"
                           ? "invert(100%)"
                           : "invert(0%)",
+                      marginRight: 12,
                     }}
                     alt={"Change theme"}
                   />
                 </button>
+              </NavItem>
+              <NavItem>
+                {user ? (
+                  <img
+                    className={`${styles.profileImage} ${
+                      context.theme === "dark"
+                        ? styles.profileImage_dark
+                        : styles.profileImage_light
+                    }`}
+                    src={user.photoURL}
+                    alt="profile picture"
+                    onClick={() => router.push("/dashboard")}
+                  />
+                ) : (
+                  ""
+                )}
               </NavItem>
             </Nav>
           </Collapse>

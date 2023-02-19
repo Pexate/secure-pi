@@ -77,3 +77,50 @@
   padding: 10px;
   margin: 4px 0;
 }
+
+.profileImage {
+  width: 48px;
+  height: 48px;
+  display: inline;
+  margin-right: 8px;
+  border-radius: 100%;
+}
+
+.profileImage:hover {
+  width: 52px;
+  height: 52px;
+  cursor: pointer;
+}
+
+.profileImage_dark:hover {
+  box-shadow: 0 0 5px 1px white;
+}
+
+.profileImage_light:hover {
+  box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);
+}
+
+.right_side_of_nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.tooltip_custom {
+  animation: test 0.4s ease-in-out;
+}
+
+.tooltip_custom_dark {
+}
+
+@keyframes test {
+  0% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

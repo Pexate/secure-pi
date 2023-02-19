@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
-import styles from "/styles/Login.module.css";
+import styles from "/styles/Reset-password.module.css";
 
 import CustomNavbar from "components/navbar/navbar";
 import { useThemeContext } from "context/context";
@@ -24,8 +24,9 @@ import { getApps } from "firebase/app";
 import { User, UserCredential } from "firebase/auth";
 
 import { toast, ToastContainer } from "react-toastify";
+import { resetPassword } from "../../firebase/firebaseMethods";
 
-const Login: NextPage = () => {
+const ResetPassword: NextPage = () => {
   const context = useThemeContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,7 +66,7 @@ const Login: NextPage = () => {
   return (
     <div className={styles.wrapper}>
       <Head>
-        <title>Prijava - securePi</title>
+        <title>Resetiraj lozinku - securePi</title>
         <meta name="description" content="Login website" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -84,7 +85,7 @@ const Login: NextPage = () => {
                   color: context.theme === "dark" ? "white" : "",
                 }}
               >
-                <b>Prijava</b>
+                <b>Resetiraj lozinku</b>
               </h3>
               <FormGroup>
                 <label
@@ -96,7 +97,7 @@ const Login: NextPage = () => {
                 <FormInput
                   className={styles.form_input}
                   id="#email"
-                  placeholder="Unesite ovdje"
+                  placeholder="Unesi ovdje"
                   style={
                     context.theme === "dark"
                       ? {
@@ -110,51 +111,26 @@ const Login: NextPage = () => {
                   }
                 />
               </FormGroup>
-              <FormGroup>
-                <label
-                  htmlFor="#password"
-                  style={{ color: context.theme === "dark" ? "white" : "" }}
-                >
-                  Lozinka
-                </label>
-                <FormInput
-                  className={styles.form_input}
-                  type="password"
-                  id="#password"
-                  placeholder="Unesite ovdje"
-                  style={
-                    context.theme === "dark"
-                      ? { color: "white", background: "#232323" }
-                      : {}
-                  }
-                  onChange={(e) =>
-                    setPassword((e.target as HTMLTextAreaElement).value)
-                  }
-                />
-              </FormGroup>
               <Button
                 //@ts-ignore
                 theme={context.theme === "dark" ? "white" : "dark"}
                 outline
                 block
                 onClick={() => {
-                  toast.promise(login, {
-                    pending: "Prijava u tijeku...",
-                    success: "Prijava uspješno izvršena!",
-                    error: "Dogodila se greška tijekom prijave...",
-                  });
+                  toast.promise(
+                    async () => {
+                      await resetPassword(email);
+                    },
+                    {
+                      pending: "Slanje e-maila u tijeku...",
+                      success: "Poruka uspješno poslana!",
+                      error: "Dogodila se greška tijekom slanja...",
+                    }
+                  );
                 }}
               >
-                <b>Prijavite se</b>
+                <b>Pošalji e-mail</b>
               </Button>
-              <p>
-                <br />
-                Nemate račun?{" "}
-                <Link href="/register">Registrirajte se ovdje.</Link>
-                <br />
-                Zaboravili ste lozinku?{" "}
-                <Link href="/reset-password">Zatražite promjenu lozinke.</Link>
-              </p>
             </Form>
           </div>
         </main>
@@ -182,4 +158,4 @@ const Login: NextPage = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;

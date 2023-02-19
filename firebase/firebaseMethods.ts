@@ -7,6 +7,7 @@ import {
   updateProfile,
   User,
   updatePassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Messaging, getMessaging, getToken } from "firebase/messaging";
@@ -197,6 +198,21 @@ const changePassword = async (password: string, user: User): Promise<void> => {
   updatePassword(user, password);
 };
 
+const resetPassword = async (email: string): Promise<void> => {
+  await sendPasswordResetEmail(auth, email);
+};
+
+const getDeviceName = async (id: string): Promise<string | null> => {
+  const deviceDocRef: DocumentReference<DocumentData> = doc(db, "users", id);
+  const deviceDoc: DocumentSnapshot<DocumentData> = await getDoc(deviceDocRef);
+
+  if (!deviceDoc.exists()) {
+    return null;
+  }
+
+  return deviceDoc.data().name;
+};
+
 export {
   requestPermission,
   logOut,
@@ -211,4 +227,6 @@ export {
   getAllUserIds,
   deleteUserAndUserData,
   changePassword,
+  resetPassword,
+  getDeviceName,
 };
