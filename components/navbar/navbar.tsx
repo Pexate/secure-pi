@@ -325,7 +325,7 @@ const CustomNavbar: FunctionComponent = () => {
                         ? styles.profileImage_dark
                         : styles.profileImage_light
                     }`}
-                    src={user.photoURL}
+                    src={user?.photoURL}
                     alt="profile picture"
                     onClick={() => router.push("/dashboard")}
                   />
