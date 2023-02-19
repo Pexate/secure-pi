@@ -9,7 +9,17 @@ import { useEffect, useState, useRef } from "react";
 import { AuthStateHook, useAuthState } from "react-firebase-hooks/auth";
 import { auth, storage } from "../../firebase/firebaseconf";
 
-import { Button, FormInput, Modal, ModalBody, ModalHeader } from "shards-react";
+import {
+  Alert,
+  Button,
+  FormInput,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Popover,
+  PopoverBody,
+  PopoverHeader,
+} from "shards-react";
 
 import {
   changeDeviceName,
@@ -18,6 +28,8 @@ import {
   setProfilePicture,
   requestPermission,
   addNotificationId,
+  deleteUserAndUserData,
+  changePassword,
 } from "../../firebase/firebaseMethods";
 
 import { useRouter } from "next/router";
@@ -61,6 +73,8 @@ const Dashboard: NextPage = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [userID, setUserID] = useState<string | null>(null);
   const [messagingId, setMessagingId] = useState<string | null>(null);
+  const [deleteButtonClick, setDeleteButtonClick] = useState<boolean>(false);
+  const [newPassword, setNewPassword] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -290,7 +304,7 @@ const Dashboard: NextPage = () => {
               }}
             >
               {" "}
-              Promjeni korisničko ime ili ime Raspberry Pia
+              Promjeni korisničke podatke
             </h4>
           </ModalHeader>
           <ModalBody
@@ -373,7 +387,7 @@ const Dashboard: NextPage = () => {
               outline
               //@ts-ignore
               theme={context.theme === "dark" ? "white" : "dark"}
-              style={{ marginTop: 12 }}
+              style={{ marginTop: 12, marginBottom: 32 }}
               onClick={() => {
                 user &&
                   deviceName &&
@@ -397,7 +411,92 @@ const Dashboard: NextPage = () => {
               style={{
                 color: context.theme === "dark" ? "white" : "#232323",
               }}
-            ></p>
+            >
+              U donjem polju za unos možeš promjeniti svoju lozinku.
+            </p>
+            <FormInput
+              placeholder={"Unesite novu lozinku"}
+              style={
+                context.theme === "dark"
+                  ? {
+                      color: "white",
+                      background: "#232323",
+                    }
+                  : {}
+              }
+              onChange={(e) =>
+                setNewPassword((e.target as HTMLInputElement).value)
+              }
+              type="password"
+            ></FormInput>
+            <Button
+              block
+              outline
+              //@ts-ignore
+              theme={context.theme === "dark" ? "white" : "dark"}
+              style={{ marginTop: 12, marginBottom: 50 }}
+              onClick={() => {
+                user &&
+                  newPassword &&
+                  toast.promise(
+                    async () => {
+                      await changePassword(newPassword, user);
+                      setOpen(false);
+                    },
+                    {
+                      success: "Uspješno promjenjena lozinka!",
+                      error:
+                        "Dogodila se pogreška tijekom mjenajnja lozinke...",
+                      pending: "Promjena lozinke u tijeku...",
+                    }
+                  );
+              }}
+            >
+              <b>Promjeni lozinku</b>
+            </Button>
+            <Button
+              theme="danger"
+              block
+              id="delete_account_button"
+              onClick={() => {
+                setDeleteButtonClick(!deleteButtonClick);
+              }}
+            >
+              Izbriši korisnički račun
+            </Button>
+            <Popover
+              placement="top"
+              open={deleteButtonClick}
+              //toggle={() => {
+              //  setDeleteButtonClick(!deleteButtonClick);
+              //}}
+              target="#delete_account_button"
+            >
+              <PopoverHeader>
+                <b style={{ lineHeight: "120%" }}>
+                  {" "}
+                  Jeste li sigurni da želite izbristati korisnički račun?
+                </b>
+              </PopoverHeader>
+              <PopoverBody>
+                Nakon što izbrišete korisnički račun,{" "}
+                <b style={{ fontWeight: 900 }}>nema vračanja</b>! Brišu se svi
+                korisnički podatci vezani uz korisnički račun i sami korisnički
+                račun. Nakon što izbršete račun, jedini način kako možete opet
+                koristiti SecurePi funkcijonalnosti jest ponovno stvaranje
+                korisničkog računa
+                <Button
+                  style={{ marginTop: 8 }}
+                  theme={"danger"}
+                  onClick={() => {
+                    console.log(user);
+                    user && deleteUserAndUserData(user);
+                  }}
+                >
+                  Želim izbrisati korisnički račun
+                </Button>
+              </PopoverBody>
+            </Popover>
           </ModalBody>
         </Modal>
 

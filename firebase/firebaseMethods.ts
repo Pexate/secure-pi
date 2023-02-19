@@ -6,6 +6,7 @@ import {
   GoogleAuthProvider,
   updateProfile,
   User,
+  updatePassword,
 } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Messaging, getMessaging, getToken } from "firebase/messaging";
@@ -14,6 +15,7 @@ import {
   uploadBytes,
   getDownloadURL,
   StorageReference,
+  deleteObject,
 } from "firebase/storage";
 
 import {
@@ -23,6 +25,7 @@ import {
   DocumentSnapshot,
   QuerySnapshot,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -157,6 +160,43 @@ const getAllUserIds = async (): Promise<Array<string>> => {
   return ids;
 };
 
+const deleteUserAndUserData = async (user: User): Promise<void> => {
+  const callsDocRef: DocumentReference<DocumentData> = doc(
+    db,
+    "calls",
+    user.uid
+  );
+  const notificationDocRef: DocumentReference<DocumentData> = doc(
+    db,
+    "notification",
+    user.uid
+  );
+  const recentDocRef: DocumentReference<DocumentData> = doc(
+    db,
+    "recent",
+    user.uid
+  );
+  const userDocRef: DocumentReference<DocumentData> = doc(
+    db,
+    "users",
+    user.uid
+  );
+
+  await deleteDoc(callsDocRef);
+  await deleteDoc(notificationDocRef);
+  await deleteDoc(recentDocRef);
+  await deleteDoc(userDocRef);
+
+  const profilePictureRef: StorageReference = ref(storage, `${user.uid}.png`);
+  deleteObject(profilePictureRef);
+
+  user.delete();
+};
+
+const changePassword = async (password: string, user: User): Promise<void> => {
+  updatePassword(user, password);
+};
+
 export {
   requestPermission,
   logOut,
@@ -169,4 +209,6 @@ export {
   changeUsername,
   addNotificationId,
   getAllUserIds,
+  deleteUserAndUserData,
+  changePassword,
 };

@@ -15,11 +15,9 @@ import {
   useAuthState,
   useCreateUserWithEmailAndPassword,
   useSendEmailVerification,
-  useSignInWithFacebook,
   useSignInWithGithub,
   useSignInWithGoogle,
   useSignInWithMicrosoft,
-  useSignInWithTwitter,
 } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/firebaseconf";
 import {
@@ -33,7 +31,12 @@ import Link from "next/link";
 
 import { useRouter } from "next/router";
 
-import { sendEmailVerification } from "firebase/auth";
+import {
+  GithubAuthProvider,
+  OAuthProvider,
+  sendEmailVerification,
+  signInWithPopup,
+} from "firebase/auth";
 
 import { ToastContainer, toast } from "react-toastify";
 
@@ -61,34 +64,21 @@ const Register: NextPage = () => {
   ]: SignInWithPopupHook = useSignInWithGithub(auth);
 
   const [
-    signInWithFacebook,
-    facebookUser,
-    facebookLoading,
-    facebookError,
-  ]: SignInWithPopupHook = useSignInWithFacebook(auth);
-
-  const [
     signInWithMicrosoft,
     microsoftUser,
     microsoftLoading,
     microsoftError,
   ]: SignInWithPopupHook = useSignInWithMicrosoft(auth);
 
-  const [
-    signInWithTwitter,
-    twitterUser,
-    twitterLoading,
-    twitterError,
-  ]: SignInWithPopupHook = useSignInWithTwitter(auth);
-
   //const [sendEmailVerification, sending, error1]: SendEmailVerificationHook =
   //  useSendEmailVerification(auth);
 
   useEffect(() => {
-    if (user2) {
+    if (user2 || githubUser || googleUser || microsoftUser) {
       router.push("/dashboard");
     }
-  }, [user2]);
+    console.log(githubUser, githubError, githubLoading);
+  }, [user2, githubUser, googleUser, microsoftUser]);
 
   useEffect(() => {
     if (user) {
@@ -261,33 +251,23 @@ const Register: NextPage = () => {
                 Prijavi se s Googlom{" "}
               </button>
               <button
-                onClick={() => signInWithGithub()}
-                className={`${styles.github_login_button} ${styles.login_button}`}
-              >
-                <Image
-                  src={"/github.svg"}
-                  width={22}
-                  height={22}
-                  alt="Github logo"
-                  style={{ marginRight: 16, filter: "invert(100%)" }}
-                />
-                Prijavi se s GitHubom{" "}
-              </button>
-              <button
-                onClick={() => signInWithFacebook()}
-                className={`${styles.facebook_login_button} ${styles.login_button}`}
-              >
-                <Image
-                  src={"/white_facebook.png"}
-                  width={24}
-                  height={24}
-                  alt="Facebook logo"
-                  style={{ marginRight: 16 }}
-                />
-                Prijavi se s Facebookom{" "}
-              </button>
-              <button
-                onClick={() => signInWithMicrosoft()}
+                onClick={() => {
+                  const provider = new OAuthProvider("microsoft.com");
+                  signInWithPopup(auth, provider)
+                    .then((result) => {
+                      // User is signed in.
+                      // IdP data available in result.additionalUserInfo.profile.
+
+                      // Get the OAuth access token and ID Token
+                      const credential =
+                        OAuthProvider.credentialFromResult(result);
+                      const accessToken = credential?.accessToken;
+                      const idToken = credential?.idToken;
+                    })
+                    .catch((error) => {
+                      // Handle error.
+                    });
+                }}
                 className={`${styles.microsoft_login_button} ${styles.login_button}`}
               >
                 <Image
@@ -300,17 +280,45 @@ const Register: NextPage = () => {
                 Prijavi se s Microsoftom{" "}
               </button>
               <button
-                onClick={() => signInWithTwitter()}
-                className={`${styles.twitter_login_button} ${styles.login_button}`}
+                onClick={() => {
+                  const provider = new GithubAuthProvider();
+                  signInWithPopup(auth, provider)
+                    .then((result) => {
+                      // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+                      const credential =
+                        GithubAuthProvider.credentialFromResult(result);
+                      const token = credential?.accessToken;
+                      console.log(credential, token, result);
+
+                      // The signed-in user info.
+                      const user = result.user;
+                      console.log(user);
+                      // IdP data available using getAdditionalUserInfo(result)
+                      // ...
+                    })
+                    .catch((error) => {
+                      // Handle Errors here.
+                      const errorCode = error.code;
+                      const errorMessage = error.message;
+                      // The email of the user's account used.
+                      const email = error.customData.email;
+                      // The AuthCredential type that was used.
+                      const credential =
+                        GithubAuthProvider.credentialFromError(error);
+                      console.log(errorMessage, errorCode, email, credential);
+                      // ...
+                    });
+                }}
+                className={`${styles.github_login_button} ${styles.login_button}`}
               >
                 <Image
-                  src={"/twitter.png"}
+                  src={"/github.svg"}
                   width={22}
                   height={22}
-                  alt="Twitter logo"
-                  style={{ marginRight: 16 }}
+                  alt="Github logo"
+                  style={{ marginRight: 16, filter: "invert(100%)" }}
                 />
-                Prijavi se s Twitterom{" "}
+                Prijavi se s GitHubom{" "}
               </button>
             </div>
           </div>

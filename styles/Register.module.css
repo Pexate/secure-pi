@@ -48,20 +48,11 @@
 
 .google_login_button {
   color: rgba(0, 0, 0, 0.75);
-}
-
-.facebook_login_button {
-  background: #003d7a !important;
-  color: white;
+  background: white !important;
 }
 
 .microsoft_login_button {
   background: #383838 !important;
-  color: white;
-}
-
-.twitter_login_button {
-  background: #51bfff !important;
   color: white;
 }
 
