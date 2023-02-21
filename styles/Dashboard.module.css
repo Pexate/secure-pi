@@ -201,7 +201,7 @@
 
 .pencil_edit_button:hover {
   cursor: pointer;
-  filter: invert(50%);
+  filter: invert(50%) !important;
 }
 
 .dropdown_modal_body {

@@ -11,6 +11,7 @@ import { auth, storage } from "../../firebase/firebaseconf";
 
 import {
   Alert,
+  Badge,
   Button,
   FormInput,
   Modal,
@@ -19,6 +20,7 @@ import {
   Popover,
   PopoverBody,
   PopoverHeader,
+  Tooltip,
 } from "shards-react";
 
 import {
@@ -34,7 +36,7 @@ import {
 
 import { useRouter } from "next/router";
 
-import { getRecentPis } from "../../firebase/webrtc";
+import { changeNotificationStatus, getRecentPis } from "../../firebase/webrtc";
 
 import ReactCrop from "react-image-crop";
 import type { Crop, PixelCrop } from "react-image-crop";
@@ -48,6 +50,10 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { User } from "firebase/auth";
 
 import { HiPencilAlt } from "react-icons/hi";
+import {
+  MdOutlineNotificationsActive,
+  MdOutlineNotificationsOff,
+} from "react-icons/md";
 import { TbCopy } from "react-icons/tb";
 
 import { toast } from "react-toastify";
@@ -75,6 +81,8 @@ const Dashboard: NextPage = () => {
   const [messagingId, setMessagingId] = useState<string | null>(null);
   const [deleteButtonClick, setDeleteButtonClick] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string | null>(null);
+  const [stopDetection, setStopDetection] = useState<boolean>(false);
+  const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -207,19 +215,65 @@ const Dashboard: NextPage = () => {
                           {messagingId
                             ? " " + messagingId?.slice(0, 20) + "..."
                             : "??"}
-                          <TbCopy
+                          <button
                             onClick={() => {
-                              if (messagingId) {
-                                navigator.clipboard.writeText(messagingId);
-                                toast.info("Kopirano u međuspremnik");
-                              }
+                              setStopDetection(!stopDetection);
+                              if (user)
+                                (async () =>
+                                  await changeNotificationStatus(
+                                    user?.uid,
+                                    stopDetection
+                                  ))();
                             }}
-                            className={styles.pencil_edit_button}
-                          />
+                            style={{
+                              background: 0,
+                              padding: 0,
+                              border: 0,
+                              marginBottom: 8,
+                            }}
+                            className={styles.notif_button}
+                          >
+                            {stopDetection ? (
+                              <MdOutlineNotificationsActive
+                                style={{
+                                  filter:
+                                    context.theme === "dark"
+                                      ? "invert(100%)"
+                                      : "",
+                                  margin: 0,
+                                }}
+                                className={styles.pencil_edit_button}
+                                id="notif"
+                              />
+                            ) : (
+                              <MdOutlineNotificationsOff
+                                style={{
+                                  filter:
+                                    context.theme === "dark"
+                                      ? "invert(100%)"
+                                      : "",
+                                  margin: 0,
+                                }}
+                                className={styles.pencil_edit_button}
+                                id="notif"
+                              />
+                            )}
+                          </button>
+                          <Tooltip
+                            open={tooltipOpen}
+                            target="#notif"
+                            toggle={() => setTooltipOpen(!tooltipOpen)}
+                            className={styles.notif_tooltip}
+                          >
+                            Ovim gumbom možete privremeno ugasiti ili upaliti
+                            slanje notifikacija <b>svim</b> uređajima
+                          </Tooltip>
                         </div>
                       </>
                     )}
                   </div>
+
+                  <div></div>
 
                   <Button
                     //@ts-ignore
@@ -244,7 +298,7 @@ const Dashboard: NextPage = () => {
                     </p>{" "}
                     <div className={styles.pi_container_container}>
                       {pis !== null
-                        ? pis.map((e, i) => {
+                        ? pis.map((e: Object, i: Key) => {
                             if (e)
                               return (
                                 <div

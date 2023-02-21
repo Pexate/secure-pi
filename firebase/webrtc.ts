@@ -336,7 +336,7 @@ const stream = async (
 const getRecentPis = async (id: string, setPis: Function): Promise<void> => {
   const idDocRef: DocumentReference<DocumentData> = doc(db, "recent", id);
   const idDoc: DocumentSnapshot<DocumentData> = await getDoc(idDocRef);
-  const pis = [];
+  const pis: any[] = [];
 
   if (idDoc.exists()) {
     let recent = idDoc.data().recent;

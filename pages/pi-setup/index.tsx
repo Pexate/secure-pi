@@ -48,7 +48,7 @@ const Setup: NextPage = () => {
   const context = useThemeContext();
   const [active, setActive] = useState<boolean>(false);
   const [blacklist, setBlacklist] = useState<Array<string>>(Array());
-  const [stopDetection, setStopDetection] = useState<boolean>(false);
+
   const videoRef: MutableRefObject<any> = useRef(null);
   const router = useRouter();
   const [user, loading, error] = useAuthState(auth);
@@ -73,7 +73,6 @@ const Setup: NextPage = () => {
         setInfo({ name: "", whitelist: [] });
       }
       const notifStatus = await checkNotificationStatus(user?.uid);
-      setStopDetection(!notifStatus);
     };
 
     const checkIfNameIsSet = async (): Promise<boolean> => {
@@ -181,34 +180,6 @@ const Setup: NextPage = () => {
               </Button>
             </div>
             <div className={styles.bottom_wrapper}>
-              <div>
-                <Button
-                  theme={stopDetection ? "success" : "danger"}
-                  onClick={() => {
-                    setStopDetection(!stopDetection);
-                    if (user)
-                      (async () =>
-                        await changeNotificationStatus(
-                          user?.uid,
-                          stopDetection
-                        ))();
-                  }}
-                >
-                  {stopDetection
-                    ? "Uključi sustav za slanje obavijesti pokreta"
-                    : "Privremeno prestani slati obavijesti pokreta"}
-                </Button>
-                <p
-                  style={{
-                    color: context.theme === "dark" ? "white" : "black",
-                  }}
-                >
-                  Trenutačno stanje:{" "}
-                  <Badge theme={stopDetection ? "danger" : "success"}>
-                    {stopDetection ? "Isključeno" : "Uključeno"}
-                  </Badge>
-                </p>
-              </div>
               <h2
                 style={{ color: context.theme === "dark" ? "white" : "black" }}
               >
