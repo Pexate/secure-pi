@@ -635,7 +635,16 @@ const Dashboard: NextPage = () => {
                       : "1px solid #232323",
                 }}
               >
-                Odaberi sliku
+                <p
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    margin: 0,
+                    padding: 0,
+                  }}
+                >
+                  Odaberi sliku
+                </p>
               </label>
               <input
                 className={`${styles.file_input} ${
@@ -659,9 +668,13 @@ const Dashboard: NextPage = () => {
               />
               <input id="file-upload" style={{ display: "none" }} type="file" />
               <Button
-                //@ts-ignore
-                theme={context.theme === "dark" ? "white" : "dark"}
+                theme={context.theme === "dark" ? "light" : "dark"}
                 outline
+                className={
+                  context.theme === "dark"
+                    ? styles.change_profile_picture_button_dark
+                    : styles.change_profile_picture_button_light
+                }
                 onClick={async () => {
                   if (imgRef.current && completedCrop) {
                     toast.promise(

@@ -106,7 +106,12 @@
   background: none;
   /*border: 1px solid white;*/
   border-radius: 5px;
-  padding: 8px;
+  height: auto;
+  display: flex;
+  text-align: center;
+  padding: 0 !important;
+  margin: 0 !important;
+
   /*color: white;*/
 }
 
@@ -137,17 +142,20 @@
 
 .custom_file_upload {
   display: inline-block;
-  padding: 10px 12px;
+  padding: 10px 36px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 200;
   border-radius: 6px;
+  text-align: center;
 }
 
 .upload_buttons_container {
+  display: flex;
+  justify-content: space-evenly;
+  height: 100%;
+  width: 40%;
   align-items: center;
-  width: auto;
-  justify-content: center;
 }
 
 .text_display_name {
@@ -273,6 +281,14 @@
 
 .log_out_button {
   font-weight: 700w;
+}
+
+.change_profile_picture_button_dark {
+  color: white !important;
+}
+
+.change_profile_picture_button_dark:hover {
+  color: black !important;
 }
 
 @media screen and (max-width: 840px) {
