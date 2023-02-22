@@ -256,19 +256,19 @@
 }
 
 .log_out_button_dark:hover {
-  color: black;
+  color: black !important;
 }
 
 .log_out_button_dark {
-  color: white;
+  color: white !important;
 }
 
 .log_out_button_light {
-  color: black;
+  color: black !important;
 }
 
 .log_out_button_light:hover {
-  color: white;
+  color: white !important;
 }
 
 .log_out_button {

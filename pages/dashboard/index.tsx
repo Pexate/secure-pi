@@ -65,7 +65,6 @@ const Dashboard: NextPage = () => {
   const [photoURL, setPhotoURL] = useState<string>(
     "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
   );
-  const [image, setImage] = useState("http://example.com/initialimage.jpg");
   const [shown, setShown] = useState(false);
   const [pis, setPis] = useState([]);
 

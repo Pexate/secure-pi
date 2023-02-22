@@ -222,18 +222,24 @@ const Register: NextPage = () => {
                     { autoClose: 7000 }
                   ) as unknown as MouseEventHandler
                 }
+                className={styles.register_button}
               >
                 <b>Registriraj</b>
               </Button>
-              <p>
+              <p
+                style={{ color: context.theme === "dark" ? "white" : "black" }}
+              >
                 <br />
-                Već registriran? <Link href="/login">Prijavi se ovdje.</Link>
+                Već registrirani? <Link href="/login">Prijavite se ovdje.</Link>
               </p>
             </Form>
             <div
               style={{
                 width: "0.6px",
-                background: "rgba(0, 0, 0, 0.35)",
+                background:
+                  context.theme === "dark"
+                    ? "rgba(255, 255, 255, 0.15)"
+                    : "rgba(0, 0, 0, 0.35)",
               }}
             ></div>
             <div className={styles.login_buttons}>
@@ -253,6 +259,10 @@ const Register: NextPage = () => {
               <button
                 onClick={() => {
                   const provider = new OAuthProvider("microsoft.com");
+                  provider.setCustomParameters({
+                    prompt: "consent",
+                    tenant: "db9ff83d-26f8-4204-99c9-73cb3476ea01",
+                  });
                   signInWithPopup(auth, provider)
                     .then((result) => {
                       // User is signed in.
@@ -263,9 +273,11 @@ const Register: NextPage = () => {
                         OAuthProvider.credentialFromResult(result);
                       const accessToken = credential?.accessToken;
                       const idToken = credential?.idToken;
+                      console.log(credential, accessToken, idToken);
                     })
                     .catch((error) => {
                       // Handle error.
+                      console.log(error);
                     });
                 }}
                 className={`${styles.microsoft_login_button} ${styles.login_button}`}

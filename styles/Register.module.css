@@ -8,7 +8,7 @@
 }
 
 .register_form {
-  width: 50vw;
+  width: clamp(50px, 50vw, 1000px);
 }
 
 .container {
@@ -21,16 +21,17 @@
 .main {
   height: 100%;
   width: 100%;
+  position: relative;
 }
 
 .content_wrapper {
   width: 85vw;
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
 }
 
 .view_one {
@@ -81,15 +82,18 @@
   justify-content: center;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 900px) {
   .register_form {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
   }
 
-  .form_input {
-    width: 100vw;
+  .form_input,
+  .login_buttons,
+  .register_button {
+    width: 80vw;
+  }
+  .content_wrapper {
+    flex-direction: column;
   }
 }

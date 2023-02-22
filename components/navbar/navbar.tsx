@@ -6,22 +6,12 @@ import { FunctionComponent } from "react";
 
 import {
   Navbar,
-  NavbarToggler,
   NavbarBrand,
   Nav,
   NavItem,
   NavLink,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Collapse,
-  Button,
   Badge,
-  Container,
-  Row,
-  Col,
-  Tooltip,
 } from "shards-react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -45,6 +35,9 @@ const CustomNavbar: FunctionComponent = () => {
   const { height, width } = useWindowDimensions();
   const [dropdownMenu, setDropdownMenu] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [photoURL, setPhotoURL] = useState<string>(
+    "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
+  );
 
   const changeProfileNameColor = () => {
     setProfileNameColor(!profileNameColor);
@@ -325,7 +318,7 @@ const CustomNavbar: FunctionComponent = () => {
                         ? styles.profileImage_dark
                         : styles.profileImage_light
                     }`}
-                    src={user?.photoURL}
+                    src={user?.photoURL ? user?.photoURL : photoURL}
                     alt="profile picture"
                     onClick={() => router.push("/dashboard")}
                   />
