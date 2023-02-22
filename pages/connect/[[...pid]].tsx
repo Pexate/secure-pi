@@ -7,7 +7,7 @@ import { useThemeContext } from "context/context";
 
 import { stream, connect } from "../../firebase/webrtc";
 import { auth } from "../../firebase/firebaseconf";
-import { getAllUserIds } from "../../firebase/firebaseMethods";
+import { getAllUserIds, getDeviceName } from "../../firebase/firebaseMethods";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 
@@ -26,10 +26,9 @@ import { useRouter } from "next/router";
 const Home: NextPage = () => {
   const context: { theme: string; setTheme: () => void } = useThemeContext();
   const [id, setId] = useState<null | string>(null);
-  const [info, setInfo] = useState<null | {
-    name: string;
-    whitelist: Array<string>;
-  }>(null);
+  const [name, setName] = useState<null | string>(null);
+  const videoRef = useRef(null);
+  let dontTryAgain = false;
 
   /* This
   const stream = async () => {
@@ -42,16 +41,22 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   const [user, loading, error] = useAuthState(auth);
+  const { pid } = router.query;
+
+  useEffect(() => {
+    try {
+      console.log(pid, Array.isArray(pid), pid[0], user, !dontTryAgain);
+    } catch (e) {}
+    if (pid && Array.isArray(pid) && pid[0] && user && !dontTryAgain) {
+      dontTryAgain = true;
+      connect(pid[0], user?.uid, videoRef);
+      getDeviceName(pid[0]).then((deviceName) => setName(deviceName));
+    }
+  }, []);
+
   useEffect(() => {
     if (!user && !loading) {
       router.push("/login");
-    }
-    const { pid } = router.query;
-    console.log(pid);
-    //console.log(pid);
-    if (Array.isArray(pid) && pid[0] && user) {
-      console.log(pid);
-      (async () => await connect(pid[0], document, setInfo, user?.uid))();
     }
   }, []);
 
@@ -77,10 +82,10 @@ const Home: NextPage = () => {
         >
           <div className={styles.watch_wrapper}>
             <div
-              className={info ? styles.watch_wrapper_info : styles.display_none}
+              className={name ? styles.watch_wrapper_info : styles.display_none}
             >
-              <b>{info ? info?.name : ""}</b>
-              <p>{info ? id : ""}</p>
+              <b style={{ textAlign: "center" }}>{name ? name : ""}</b>
+              <p>{pid ? pid : id}</p>
             </div>
             <video
               className={
@@ -90,8 +95,9 @@ const Home: NextPage = () => {
               }
               id="streamVideo"
               autoPlay
+              ref={videoRef}
             ></video>
-            <InputGroup className={info ? styles.display_none : ""}>
+            <InputGroup className={name ? styles.display_none : ""}>
               <FormInput
                 className={styles.id_input}
                 onChange={(e: FormEvent<any>) => {
@@ -110,8 +116,11 @@ const Home: NextPage = () => {
                 <Button
                   theme={context.theme === "dark" ? "light" : "dark"}
                   onClick={async () => {
-                    if (id && user)
-                      await connect(id, document, setInfo, user?.uid);
+                    if (id && user) await connect(id, user?.uid, videoRef);
+                    id &&
+                      getDeviceName(id).then((deviceName) =>
+                        setName(deviceName)
+                      );
                   }}
                 >
                   Gledaj

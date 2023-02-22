@@ -75,21 +75,6 @@ const Setup: NextPage = () => {
       const notifStatus = await checkNotificationStatus(user?.uid);
     };
 
-    const checkIfNameIsSet = async (): Promise<boolean> => {
-      if (!user) return false;
-
-      const userDocRef: DocumentReference = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        setDoc(userDocRef, { name: "", whitelist: [] });
-        setOpen(true);
-        return false;
-      }
-
-      return !!userDoc.data().name;
-    };
-
     getNotificationStatus();
     /*
     if (user) {
@@ -144,18 +129,28 @@ const Setup: NextPage = () => {
                   } ${active ? "" : styles.display_none}`}
                   autoPlay
                 ></video>
-                <div
-                  className={
-                    active
-                      ? styles.watch_video_id_container
-                      : styles.display_none
-                  }
-                >
-                  <p className={styles.watch_video_id} id="watch_video_id"></p>
-                  <Button id="copy_button" theme={context.theme} outline>
-                    Kopiraj
-                  </Button>
-                </div>
+                {user && (
+                  <div
+                    className={
+                      active
+                        ? styles.watch_video_id_container
+                        : styles.display_none
+                    }
+                  >
+                    <p className={styles.watch_video_id}>
+                      {"Pi kod: " + user.uid}
+                    </p>
+                    <Button
+                      theme={context.theme}
+                      onClick={() => {
+                        navigator.clipboard.writeText(user.uid);
+                        toast.info("Kopirano u međuspremnik.");
+                      }}
+                    >
+                      Kopiraj
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <Button
@@ -169,9 +164,8 @@ const Setup: NextPage = () => {
                         audio: true,
                       }
                     );
-
-                    if (user?.uid)
-                      await stream(document, videoStream, user?.uid);
+                    videoRef.current.srcObject = videoStream;
+                    if (user?.uid) await stream(user?.uid, videoStream);
                     setActive(true);
                   })();
                 }}

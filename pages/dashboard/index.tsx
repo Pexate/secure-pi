@@ -67,7 +67,7 @@ const Dashboard: NextPage = () => {
   );
   const [image, setImage] = useState("http://example.com/initialimage.jpg");
   const [shown, setShown] = useState(false);
-  const [pis, setPis] = useState(null);
+  const [pis, setPis] = useState([]);
 
   const [imgSrc, setImgSrc] = useState("");
   const imgRef = useRef<HTMLImageElement>(null);
@@ -96,15 +96,13 @@ const Dashboard: NextPage = () => {
     if ((user === null && loading === false) || error) router.push("/");
     if (user?.photoURL) setPhotoURL(user.photoURL);
     if (user) {
-      console.log(user.emailVerified);
+      console.log(user);
+      getRecentPis(user?.uid).then((pis: any[]) => setPis(pis));
+      setUserID(user.uid);
     }
   }, [user, loading, error, shown]);
 
   useEffect(() => {
-    if (user) {
-      !pis && getRecentPis(user?.uid, setPis);
-      setUserID(user.uid);
-    }
     console.log(pis);
     const messaging = getMessaging();
     getToken(messaging, {
@@ -134,6 +132,10 @@ const Dashboard: NextPage = () => {
       payload.data && new Notification("Pokret detektiran!");
     });
   }, []);
+
+  useEffect(() => {
+    console.log(pis);
+  }, [pis]);
 
   return (
     <div className={styles.container}>
@@ -297,7 +299,7 @@ const Dashboard: NextPage = () => {
                       Prethodno povezani Pievi
                     </p>{" "}
                     <div className={styles.pi_container_container}>
-                      {pis !== null
+                      {pis && pis.length
                         ? pis.map((e: Object, i: Key) => {
                             if (e)
                               return (
@@ -325,7 +327,9 @@ const Dashboard: NextPage = () => {
                                     }
                                     pill
                                     className={styles.pi_connect_button}
-                                    onClick={() => router.push(`/connect/${e}`)}
+                                    onClick={() =>
+                                      router.push(`/connect/${e.id}`)
+                                    }
                                   >
                                     Poveži
                                   </Button>
