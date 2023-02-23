@@ -7,9 +7,17 @@ import styles from "/styles/Register.module.css";
 import CustomNavbar from "components/navbar/navbar";
 import { useThemeContext } from "context/context";
 
-import { Form, FormInput, FormGroup, Button } from "shards-react";
+import {
+  Form,
+  FormInput,
+  FormGroup,
+  Button,
+  InputGroup,
+  InputGroupAddon,
+} from "shards-react";
 
 import {
+  AuthStateHook,
   SendEmailVerificationHook,
   SignInWithPopupHook,
   useAuthState,
@@ -36,6 +44,8 @@ import {
   OAuthProvider,
   sendEmailVerification,
   signInWithPopup,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
 } from "firebase/auth";
 
 import { ToastContainer, toast } from "react-toastify";
@@ -44,10 +54,13 @@ const Register: NextPage = () => {
   const context = useThemeContext();
   const [createUserWithEmailAndPassword, user, loading, error] =
     useCreateUserWithEmailAndPassword(auth);
-  const [user2, loading2, error2] = useAuthState(auth);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
+  const [user2, loading2, error2]: AuthStateHook = useAuthState(auth);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [smsSent, setSmsSent] = useState<boolean>(false);
+  const [verificationCode, setVerificationCode] = useState<string>("");
   const router = useRouter();
   const [
     signInWithGoogle,
@@ -93,6 +106,20 @@ const Register: NextPage = () => {
       }
     }
   }, [user]);
+
+  useEffect(() => {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      "phone_number_submit_button",
+      {
+        size: "invisible",
+        callback: (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log(response);
+        },
+      },
+      auth
+    );
+  }, []);
 
   const registerClick = async (): Promise<void> => {
     email &&
@@ -254,7 +281,21 @@ const Register: NextPage = () => {
                   alt="Google logo"
                   style={{ marginRight: 16 }}
                 />
-                Prijavi se s Googlom{" "}
+                Prijavi se Googlom{" "}
+              </button>
+              <button
+                onClick={() => {}}
+                className={`${styles.phone_login_button} ${styles.login_button}`}
+                //id="sign-in-button"
+              >
+                <Image
+                  src={"/phone.png"}
+                  width={22}
+                  height={22}
+                  alt="Phone logo"
+                  style={{ marginRight: 16, filter: "invert(100%)" }}
+                />
+                Prijavite se mobilnim brojem{" "}
               </button>
               <button
                 onClick={() => {
@@ -289,7 +330,7 @@ const Register: NextPage = () => {
                   alt="Google logo"
                   style={{ marginRight: 16 }}
                 />
-                Prijavi se s Microsoftom{" "}
+                Prijavi se Microsoftom{" "}
               </button>
               <button
                 onClick={() => {
@@ -330,8 +371,112 @@ const Register: NextPage = () => {
                   alt="Github logo"
                   style={{ marginRight: 16, filter: "invert(100%)" }}
                 />
-                Prijavi se s GitHubom{" "}
+                Prijavi se GitHubom{" "}
               </button>
+            </div>
+            <div
+              className={`${styles.phone_number_login_wrapper} ${
+                context.theme === "dark"
+                  ? styles.phone_number_login_wrapper_dark
+                  : styles.phone_number_login_wrapper_light
+              }`}
+            >
+              <h2
+                style={{
+                  color: context.theme === "dark" ? "white" : "black",
+                  textAlign: "center",
+                  marginBottom: 16,
+                }}
+              >
+                Prijava mobilnim brojem
+              </h2>
+              <div className={styles.phone_number_login_bottom}>
+                {!smsSent ? (
+                  <InputGroup>
+                    <FormInput
+                      className={styles.mobile_phone_input}
+                      type="tel"
+                      placeholder="Broj mobilnog telefona"
+                      style={
+                        context.theme === "dark"
+                          ? {
+                              color: "white",
+                              background: "#232323",
+                            }
+                          : {}
+                      }
+                      onChange={(e) =>
+                        setPhoneNumber((e.target as HTMLTextAreaElement).value)
+                      }
+                    />
+                    <InputGroupAddon type="append">
+                      <button
+                        id="phone_number_submit_button"
+                        style={{ border: 0, background: "none" }}
+                        onClick={() => {
+                          signInWithPhoneNumber(
+                            auth,
+                            phoneNumber,
+                            window.recaptchaVerifier
+                          )
+                            .then((confirmationResult) => {
+                              // SMS sent. Prompt user to type the code from the message, then sign the
+                              // user in with confirmationResult.confirm(code).
+                              window.confirmationResult = confirmationResult;
+                              setSmsSent(true);
+                              toast.info(
+                                'SMS poruka je poslana na vaš mobilni broj, unesite je i pritisnite "Podnesi" kako biste se prijavili mobilnim brojem'
+                              );
+                              // ...
+                            })
+                            .catch((error) => {
+                              // Error; SMS not sent
+                              // ...
+                            });
+                        }}
+                      >
+                        <Button
+                          theme={context.theme === "dark" ? "light" : "dark"}
+                          id="phone_number_submit_button"
+                        >
+                          Pošalji verifikacijski kôd
+                        </Button>
+                      </button>
+                    </InputGroupAddon>
+                  </InputGroup>
+                ) : (
+                  <InputGroup>
+                    <FormInput
+                      className={styles.mobile_phone_input}
+                      type="tel"
+                      placeholder="Verifikacijski kôd"
+                      style={
+                        context.theme === "dark"
+                          ? {
+                              color: "white",
+                              background: "#232323",
+                            }
+                          : {}
+                      }
+                      onChange={(e) =>
+                        setVerificationCode(
+                          (e.target as HTMLTextAreaElement).value
+                        )
+                      }
+                    />
+                    <InputGroupAddon type="append">
+                      <Button
+                        theme={context.theme === "dark" ? "light" : "dark"}
+                        onClick={() => {
+                          window.confirmationResult.confirm(verificationCode);
+                        }}
+                      >
+                        Podnesi
+                      </Button>
+                    </InputGroupAddon>
+                  </InputGroup>
+                )}
+              </div>
             </div>
           </div>
         </main>
