@@ -342,27 +342,32 @@ const stream = async (
 
 const stream = async (id: string, stream: MediaStream): Promise<void> => {
   const { Peer } = await import("peerjs");
-  const peer: Peer = new Peer(id + "_H", { debug: 3 });
+  const peer: Peer = new Peer(id + "_H");
   /*
   console.log(peer);
   const { width, height } = stream.getVideoTracks()[0].getSettings();
-
+  */
+  /*
   peer.on("connection", (conn: DataConnection) => {
-    console.log(conn, { id: id, width: width, height: height });
-    conn.on("open", (data) => {
-      console.log(data);
-      conn.on("data", async (data2: any): Promise<void> => {
-        console.log(data2);
-        conn.send({ id: id, width: width, height: height });
+    conn.on("open", () => {
+      conn.on("data", async (data: any) => {
+        const whitelisted = await checkIfWhitelisted(id, data);
+        console.log(whitelisted);
+        if (whitelisted) {
+          
+        }
       });
     });
   });
   */
-
-  peer.on("call", (call: MediaConnection) => {
+  peer.on("call", async (call: MediaConnection) => {
+    const isWhitelisted = await checkIfWhitelisted(id, call.metadata.peerId);
     console.log("call", call);
     console.log(stream);
-    call.answer(stream);
+    console.log(isWhitelisted);
+    if (isWhitelisted) {
+      call.answer(stream);
+    }
   });
 };
 
@@ -372,7 +377,7 @@ const connect = async (
   videoRef: MutableRefObject<null | HTMLVideoElement>
 ): Promise<void> => {
   const { Peer } = await import("peerjs");
-  const peer: Peer = new Peer(nanoid(), { debug: 3 });
+  const peer: Peer = new Peer(nanoid());
   console.log(peer);
   peer.on("open", () => {
     let conn = peer.connect(id + "_H");
@@ -380,13 +385,14 @@ const connect = async (
     peer.on("connection", (connection) => {
       conn = connection;
     });
-    console.log("open");
-    const call = peer.call(id + "_H", createMediaStreamFake());
-    console.log(call);
+    const call = peer.call(id + "_H", createMediaStreamFake(), {
+      metadata: { peerId: userId },
+    });
     call.on("stream", (stream) => {
       console.log(stream);
       videoRef.current.srcObject = stream;
     });
+    //conn.send(userId);
   });
 
   /*

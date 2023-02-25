@@ -367,7 +367,7 @@ const Dashboard: NextPage = () => {
               }}
             >
               {" "}
-              Promjeni korisničke podatke
+              Promjena korisničkih podataka
             </h4>
           </ModalHeader>
           <ModalBody
@@ -382,10 +382,10 @@ const Dashboard: NextPage = () => {
                 color: context.theme === "dark" ? "white" : "#232323",
               }}
             >
-              U donjem polju za unos možeš promjeniti svoje korisničko ime.
+              U donjem polju za unos možete promjeniti svoje korisničko ime.
             </p>
             <FormInput
-              placeholder={"Unesi novo korisničko ime"}
+              placeholder={"Unesite novo korisničko ime"}
               style={
                 context.theme === "dark"
                   ? {
@@ -428,7 +428,7 @@ const Dashboard: NextPage = () => {
                 color: context.theme === "dark" ? "white" : "#232323",
               }}
             >
-              U donjem polju za unos možeš promjeniti ime svog uređaja
+              U donjem polju za unos možete promjeniti ime svog uređaja
               (Raspberry Pia).
             </p>
             <FormInput
@@ -475,7 +475,7 @@ const Dashboard: NextPage = () => {
                 color: context.theme === "dark" ? "white" : "#232323",
               }}
             >
-              U donjem polju za unos možeš promjeniti svoju lozinku.
+              U donjem polju za unos možete promjeniti svoju lozinku.
             </p>
             <FormInput
               placeholder={"Unesite novu lozinku"}
