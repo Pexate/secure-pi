@@ -76,7 +76,6 @@
 .login_form {
   width: clamp(50px, 50vw, 1000px);
 }
-
 @media screen and (max-width: 900px) {
   .login_form {
     display: flex;

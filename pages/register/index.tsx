@@ -14,6 +14,9 @@ import {
   Button,
   InputGroup,
   InputGroupAddon,
+  Modal,
+  ModalHeader,
+  ModalBody,
 } from "shards-react";
 
 import {
@@ -61,6 +64,7 @@ const Register: NextPage = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [smsSent, setSmsSent] = useState<boolean>(false);
   const [verificationCode, setVerificationCode] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
   const router = useRouter();
   const [
     signInWithGoogle,
@@ -237,8 +241,7 @@ const Register: NextPage = () => {
                 />
               </FormGroup>
               <Button
-                //@ts-ignore
-                theme={context.theme === "dark" ? "white" : "dark"}
+                theme={context.theme === "dark" ? "light" : "dark"}
                 outline
                 block
                 onClick={() =>
@@ -289,7 +292,9 @@ const Register: NextPage = () => {
                 Prijavi se Googlom{" "}
               </button>
               <button
-                onClick={() => {}}
+                onClick={() => {
+                  setOpen(!open);
+                }}
                 className={`${styles.phone_login_button} ${styles.login_button}`}
                 //id="sign-in-button"
               >
@@ -299,6 +304,7 @@ const Register: NextPage = () => {
                   height={22}
                   alt="Phone logo"
                   style={{ marginRight: 16, filter: "invert(100%)" }}
+                  onClick={() => setOpen(!open)}
                 />
                 Prijavite se mobilnim brojem{" "}
               </button>
@@ -379,124 +385,123 @@ const Register: NextPage = () => {
                 Prijavi se GitHubom{" "}
               </button>
             </div>
-            <div
-              className={`${styles.phone_number_login_wrapper} ${
-                context.theme === "dark"
-                  ? styles.phone_number_login_wrapper_dark
-                  : styles.phone_number_login_wrapper_light
-              }`}
-            >
-              <h2
-                style={{
-                  color: context.theme === "dark" ? "white" : "black",
-                  textAlign: "center",
-                  marginBottom: 16,
-                }}
-              >
-                Prijava mobilnim brojem
-              </h2>
-              <div className={styles.phone_number_login_bottom}>
-                {!smsSent ? (
-                  <>
-                    {" "}
-                    <FormInput
-                      placeholder="Korisničko ime"
-                      onChange={(e) =>
-                        setUsername((e.target as HTMLTextAreaElement).value)
-                      }
-                    />
-                    <FormInput
-                      className={styles.mobile_phone_input}
-                      type="tel"
-                      placeholder="Broj mobilnog telefona"
-                      style={
-                        context.theme === "dark"
-                          ? {
-                              color: "white",
-                              background: "#232323",
-                            }
-                          : {}
-                      }
-                      onChange={(e) =>
-                        setPhoneNumber((e.target as HTMLTextAreaElement).value)
-                      }
-                    />
-                    <button
-                      id="phone_number_submit_button"
-                      style={{
-                        border: 0,
-                        background: "none",
-                        padding: 0,
-                        margin: 0,
-                      }}
-                      onClick={() => {
-                        signInWithPhoneNumber(
-                          auth,
-                          phoneNumber,
-                          window.recaptchaVerifier
-                        )
-                          .then((confirmationResult) => {
-                            // SMS sent. Prompt user to type the code from the message, then sign the
-                            // user in with confirmationResult.confirm(code).
-                            window.confirmationResult = confirmationResult;
-                            setSmsSent(true);
-                            toast.info(
-                              'SMS poruka je poslana na vaš mobilni broj, unesite je i pritisnite "Podnesi" kako biste se prijavili mobilnim brojem'
-                            );
-                            // ...
-                          })
-                          .catch((error) => {
-                            // Error; SMS not sent
-                            // ...
-                          });
-                      }}
-                    >
-                      <Button
-                        block
-                        theme={context.theme === "dark" ? "light" : "dark"}
-                        id="phone_number_submit_button"
-                      >
-                        Pošalji verifikacijski kôd
-                      </Button>
-                    </button>
-                  </>
-                ) : (
-                  <InputGroup>
-                    <FormInput
-                      className={styles.mobile_phone_input}
-                      type="tel"
-                      placeholder="Verifikacijski kôd"
-                      style={
-                        context.theme === "dark"
-                          ? {
-                              color: "white",
-                              background: "#232323",
-                            }
-                          : {}
-                      }
-                      onChange={(e) =>
-                        setVerificationCode(
-                          (e.target as HTMLTextAreaElement).value
-                        )
-                      }
-                    />
-                    <InputGroupAddon type="append">
-                      <Button
-                        theme={context.theme === "dark" ? "light" : "dark"}
-                        onClick={() => {
-                          window.confirmationResult.confirm(verificationCode);
-                        }}
-                      >
-                        Podnesi
-                      </Button>
-                    </InputGroupAddon>
-                  </InputGroup>
-                )}
-              </div>
-            </div>
           </div>
         </main>
       </div>
+      <Modal
+        className={`${styles.phone_number_login_wrapper} ${
+          context.theme === "dark"
+            ? styles.phone_number_login_wrapper_dark
+            : styles.phone_number_login_wrapper_light
+        }`}
+        open={open}
+        toggle={() => {
+          setOpen(!open);
+        }}
+      >
+        <ModalHeader>Prijava mobilnim brojem</ModalHeader>
+        <ModalBody className={styles.phone_number_login_bottom}>
+          {!smsSent ? (
+            <>
+              {" "}
+              <FormInput
+                placeholder="Korisničko ime"
+                onChange={(e) =>
+                  setUsername((e.target as HTMLTextAreaElement).value)
+                }
+                style={{ marginBottom: 8 }}
+              />
+              <FormInput
+                className={styles.mobile_phone_input}
+                type="tel"
+                placeholder="Broj mobilnog telefona"
+                style={
+                  context.theme === "dark"
+                    ? {
+                        color: "white",
+                        background: "#232323",
+                        marginBottom: 12,
+                      }
+                    : {
+                        marginBottom: 12,
+                      }
+                }
+                onChange={(e) =>
+                  setPhoneNumber((e.target as HTMLTextAreaElement).value)
+                }
+              />
+              <button
+                //id="phone_number_submit_button"
+                style={{
+                  border: 0,
+                  background: "none",
+                  padding: 0,
+                  margin: 0,
+                }}
+                onClick={() => {
+                  signInWithPhoneNumber(
+                    auth,
+                    phoneNumber,
+                    window.recaptchaVerifier
+                  )
+                    .then((confirmationResult) => {
+                      // SMS sent. Prompt user to type the code from the message, then sign the
+                      // user in with confirmationResult.confirm(code).
+                      window.confirmationResult = confirmationResult;
+                      setSmsSent(true);
+                      toast.info(
+                        'SMS poruka je poslana na vaš mobilni broj, unesite je i pritisnite "Podnesi" kako biste se prijavili mobilnim brojem'
+                      );
+                      // ...
+                    })
+                    .catch((error) => {
+                      // Error; SMS not sent
+                      // ...
+                    });
+                }}
+              >
+                <Button
+                  block
+                  theme={context.theme === "dark" ? "light" : "dark"}
+                  //id="phone_number_submit_button"
+                >
+                  Pošalji verifikacijski kôd
+                </Button>
+              </button>
+            </>
+          ) : (
+            <InputGroup>
+              <FormInput
+                className={styles.mobile_phone_input}
+                type="tel"
+                placeholder="Verifikacijski kôd"
+                style={
+                  context.theme === "dark"
+                    ? {
+                        color: "white",
+                        background: "#232323",
+                      }
+                    : {}
+                }
+                onChange={(e) =>
+                  setVerificationCode((e.target as HTMLTextAreaElement).value)
+                }
+              />
+              <InputGroupAddon type="append">
+                <Button
+                  theme={context.theme === "dark" ? "light" : "dark"}
+                  onClick={() => {
+                    window.confirmationResult.confirm(verificationCode);
+                  }}
+                >
+                  Podnesi
+                </Button>
+              </InputGroupAddon>
+            </InputGroup>
+          )}
+        </ModalBody>
+      </Modal>
+      <div id="phone_number_submit_button"></div>
 
       <footer
         className={styles.footer}
