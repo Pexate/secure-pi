@@ -5,7 +5,7 @@ import CustomNavbar from "components/navbar/navbar";
 import Loading from "components/loading/loading";
 
 import { useThemeContext } from "context/context";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Key } from "react";
 import { AuthStateHook, useAuthState } from "react-firebase-hooks/auth";
 import { auth, storage } from "../../firebase/firebaseconf";
 
@@ -198,7 +198,7 @@ const Dashboard: NextPage = () => {
                           (
                           {
                             //@ts-ignore
-                            user?.email
+                            user?.email ? user.email : user.phoneNumber
                           }
                           )
                           <HiPencilAlt
@@ -299,7 +299,7 @@ const Dashboard: NextPage = () => {
                     </p>{" "}
                     <div className={styles.pi_container_container}>
                       {pis && pis.length
-                        ? pis.map((e: Object, i: Key) => {
+                        ? pis.map((e: { name: string; id: string }, i: Key) => {
                             if (e)
                               return (
                                 <div
