@@ -176,7 +176,7 @@ const Login: NextPage = () => {
               </FormGroup>
               <Button
                 //@ts-ignore
-                theme={context.theme === "dark" ? "white" : "dark"}
+                theme={context.theme === "dark" ? "light" : "dark"}
                 outline
                 block
                 onClick={() => {
@@ -190,7 +190,10 @@ const Login: NextPage = () => {
               >
                 <b>Prijavite se</b>
               </Button>
-              <p className={styles.bottom_text}>
+              <p
+                className={styles.bottom_text}
+                style={{ color: context.theme === "dark" ? "white" : "black" }}
+              >
                 <br />
                 Nemate račun?{" "}
                 <Link href="/register">Registrirajte se ovdje.</Link>

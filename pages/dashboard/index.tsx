@@ -136,6 +136,13 @@ const Dashboard: NextPage = () => {
     console.log(pis);
   }, [pis]);
 
+  const copyClick = () => {
+    if (!user) return;
+
+    navigator.clipboard.writeText(user.uid);
+    toast.info("Korisnikov ID kopiran u međuspremnik");
+  };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -183,23 +190,18 @@ const Dashboard: NextPage = () => {
                   <div className={styles.display_name_and_email}>
                     {user && (
                       <>
-                        <b className={styles.text_display_name}>
-                          Prijavljen kao{" "}
-                          {
-                            //@ts-ignore
-                            user?.displayName
-                          }
+                        <b
+                          className={styles.text_display_name}
+                          style={{ fontWeight: 500 }}
+                        >
+                          {user?.displayName}
                         </b>{" "}
                         <span
                           style={{
                             fontSize: 20,
                           }}
                         >
-                          (
-                          {
-                            //@ts-ignore
-                            user?.email ? user.email : user.phoneNumber
-                          }
+                          ({user?.email ? user.email : user.phoneNumber}
                           )
                           <HiPencilAlt
                             className={styles.pencil_edit_button}
@@ -207,15 +209,6 @@ const Dashboard: NextPage = () => {
                               setOpen(true);
                             }}
                           />
-                        </span>
-                        <div style={{ textAlign: "center" }}>
-                          {"Korisnikov ID: " + userID}
-                        </div>
-                        <div className={styles.messaging_id_and_button}>
-                          Messaging ID:
-                          {messagingId
-                            ? " " + messagingId?.slice(0, 20) + "..."
-                            : "??"}
                           <button
                             onClick={() => {
                               setStopDetection(!stopDetection);
@@ -233,6 +226,7 @@ const Dashboard: NextPage = () => {
                               marginBottom: 8,
                             }}
                             className={styles.notif_button}
+                            id="notif"
                           >
                             {stopDetection ? (
                               <MdOutlineNotificationsActive
@@ -244,7 +238,6 @@ const Dashboard: NextPage = () => {
                                   margin: 0,
                                 }}
                                 className={styles.pencil_edit_button}
-                                id="notif"
                               />
                             ) : (
                               <MdOutlineNotificationsOff
@@ -256,7 +249,6 @@ const Dashboard: NextPage = () => {
                                   margin: 0,
                                 }}
                                 className={styles.pencil_edit_button}
-                                id="notif"
                               />
                             )}
                           </button>
@@ -269,6 +261,15 @@ const Dashboard: NextPage = () => {
                             Ovim gumbom možete privremeno ugasiti ili upaliti
                             slanje notifikacija <b>svim</b> uređajima
                           </Tooltip>
+                        </span>
+                        <div style={{ textAlign: "center", marginBottom: 6 }}>
+                          {"Korisnikov ID: " + userID}
+                          <span>
+                            <TbCopy
+                              className={styles.pencil_edit_button}
+                              onClick={copyClick}
+                            ></TbCopy>
+                          </span>
                         </div>
                       </>
                     )}
@@ -364,6 +365,7 @@ const Dashboard: NextPage = () => {
             <h4
               style={{
                 color: context.theme === "dark" ? "white" : "#232323",
+                fontWeight: 500,
               }}
             >
               {" "}
@@ -402,7 +404,7 @@ const Dashboard: NextPage = () => {
               block
               outline
               //@ts-ignore
-              theme={context.theme === "dark" ? "white" : "dark"}
+              theme={context.theme === "dark" ? "light" : "dark"}
               style={{ margin: "12px 0 32px 0" }}
               onClick={() => {
                 user &&
@@ -449,7 +451,7 @@ const Dashboard: NextPage = () => {
               block
               outline
               //@ts-ignore
-              theme={context.theme === "dark" ? "white" : "dark"}
+              theme={context.theme === "dark" ? "light" : "dark"}
               style={{ marginTop: 12, marginBottom: 32 }}
               onClick={() => {
                 user &&
@@ -496,7 +498,7 @@ const Dashboard: NextPage = () => {
               block
               outline
               //@ts-ignore
-              theme={context.theme === "dark" ? "white" : "dark"}
+              theme={context.theme === "dark" ? "light" : "dark"}
               style={{ marginTop: 12, marginBottom: 50 }}
               onClick={() => {
                 user &&
@@ -583,11 +585,11 @@ const Dashboard: NextPage = () => {
           >
             <b
               style={{
-                fontSize: 35,
                 color: context.theme === "dark" ? "white" : "black",
+                fontWeight: 500,
               }}
             >
-              Promjeni profilu sliku
+              Promjeni profilnu sliku
             </b>
           </ModalHeader>
           <ModalBody
@@ -633,6 +635,7 @@ const Dashboard: NextPage = () => {
                     context.theme === "dark"
                       ? "1px solid #ffffff"
                       : "1px solid #232323",
+                  color: context.theme === "dark" ? "white" : "black",
                 }}
               >
                 <p
@@ -669,12 +672,7 @@ const Dashboard: NextPage = () => {
               <input id="file-upload" style={{ display: "none" }} type="file" />
               <Button
                 theme={context.theme === "dark" ? "light" : "dark"}
-                outline
-                className={
-                  context.theme === "dark"
-                    ? styles.change_profile_picture_button_dark
-                    : styles.change_profile_picture_button_light
-                }
+                //outline
                 onClick={async () => {
                   if (imgRef.current && completedCrop) {
                     toast.promise(
