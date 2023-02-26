@@ -17,6 +17,7 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
+  Alert,
 } from "shards-react";
 
 import {
@@ -257,9 +258,13 @@ const Register: NextPage = () => {
                     { autoClose: 7000 }
                   ) as unknown as MouseEventHandler
                 }
-                className={styles.register_button}
+                className={`${styles.register_button} ${
+                  context.theme === "dark"
+                    ? styles.register_button_dark
+                    : styles.register_button_light
+                }`}
               >
-                <b>Registriraj</b>
+                Registriraj
               </Button>
               <p
                 style={{ color: context.theme === "dark" ? "white" : "black" }}
@@ -399,8 +404,31 @@ const Register: NextPage = () => {
           setOpen(!open);
         }}
       >
-        <ModalHeader>Prijava mobilnim brojem</ModalHeader>
-        <ModalBody className={styles.phone_number_login_bottom}>
+        <ModalHeader
+          className={
+            context.theme === "dark"
+              ? styles.modal_header_dark
+              : styles.modal_header_light
+          }
+        >
+          <p
+            style={{
+              color: context.theme === "dark" ? "white" : "black",
+              margin: 0,
+              padding: 0,
+            }}
+          >
+            {" "}
+            Prijava mobilnim brojem
+          </p>
+        </ModalHeader>
+        <ModalBody
+          className={`${styles.phone_number_login_bottom} ${
+            context.theme === "dark"
+              ? styles.phone_number_login_bottom_dark
+              : styles.phone_number_login_bottom_light
+          }`}
+        >
           {!smsSent ? (
             <>
               {" "}
@@ -409,7 +437,17 @@ const Register: NextPage = () => {
                 onChange={(e) =>
                   setUsername((e.target as HTMLTextAreaElement).value)
                 }
-                style={{ marginBottom: 8 }}
+                style={
+                  context.theme === "dark"
+                    ? {
+                        color: "white",
+                        background: "#232323",
+                        marginBottom: 6,
+                      }
+                    : {
+                        marginBottom: 6,
+                      }
+                }
               />
               <FormInput
                 className={styles.mobile_phone_input}
@@ -430,13 +468,11 @@ const Register: NextPage = () => {
                   setPhoneNumber((e.target as HTMLTextAreaElement).value)
                 }
               />
-              <button
-                //id="phone_number_submit_button"
+              <Button
+                block
+                theme={context.theme === "dark" ? "light" : "dark"}
                 style={{
-                  border: 0,
-                  background: "none",
-                  padding: 0,
-                  margin: 0,
+                  marginBottom: 16,
                 }}
                 onClick={() => {
                   signInWithPhoneNumber(
@@ -459,15 +495,18 @@ const Register: NextPage = () => {
                       // ...
                     });
                 }}
+                //id="phone_number_submit_button"
               >
-                <Button
-                  block
-                  theme={context.theme === "dark" ? "light" : "dark"}
-                  //id="phone_number_submit_button"
-                >
-                  Pošalji verifikacijski kôd
-                </Button>
-              </button>
+                Pošalji verifikacijski kôd
+              </Button>
+              <Alert
+                theme={context.theme}
+                style={{ color: context.theme === "dark" ? "white" : "black" }}
+              >
+                Broj se mora napisati u obliku pozivnog broja države te mobilnog
+                broja isključujući početnu nulu i bez razmaka! Npr.
+                +385951234567
+              </Alert>
             </>
           ) : (
             <InputGroup>

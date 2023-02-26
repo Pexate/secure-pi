@@ -8,7 +8,18 @@ import styles from "/styles/Login.module.css";
 import CustomNavbar from "components/navbar/navbar";
 import { useThemeContext } from "context/context";
 
-import { Form, FormInput, FormGroup, Button } from "shards-react";
+import {
+  Form,
+  FormInput,
+  FormGroup,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  InputGroup,
+  InputGroupAddon,
+  Alert,
+} from "shards-react";
 
 import {
   useAuthState,
@@ -25,6 +36,8 @@ import { getApps } from "firebase/app";
 import {
   GithubAuthProvider,
   OAuthProvider,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
   signInWithPopup,
   User,
   UserCredential,
@@ -38,6 +51,10 @@ const Login: NextPage = () => {
   const [password, setPassword] = useState("");
   const [signInWithEmailAndPassword, user, loading, error] =
     useSignInWithEmailAndPassword(auth);
+  const [open, setOpen] = useState<boolean>(false);
+  const [smsSent, setSmsSent] = useState<boolean>(false);
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [verificationCode, setVerificationCode] = useState<string>("");
 
   const [user2, loading2, error2] = useAuthState(auth);
 
@@ -52,6 +69,20 @@ const Login: NextPage = () => {
 
     console.log(user);
   }, [user, loading, error]);
+
+  useEffect(() => {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      "phone_number_submit_button",
+      {
+        size: "invisible",
+        callback: (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log(response);
+        },
+      },
+      auth
+    );
+  }, []);
 
   const login = async () => {
     try {
@@ -193,6 +224,23 @@ const Login: NextPage = () => {
               </button>
               <button
                 onClick={() => {
+                  setOpen(!open);
+                }}
+                className={`${styles.phone_login_button} ${styles.login_button}`}
+                //id="sign-in-button"
+              >
+                <Image
+                  src={"/phone.png"}
+                  width={22}
+                  height={22}
+                  alt="Phone logo"
+                  style={{ marginRight: 16, filter: "invert(100%)" }}
+                  onClick={() => setOpen(!open)}
+                />
+                Prijavite se mobilnim brojem{" "}
+              </button>
+              <button
+                onClick={() => {
                   const provider = new OAuthProvider("microsoft.com");
                   signInWithPopup(auth, provider)
                     .then((result) => {
@@ -265,6 +313,135 @@ const Login: NextPage = () => {
           </div>
         </main>
       </div>
+
+      <Modal
+        className={`${styles.phone_number_login_wrapper} ${
+          context.theme === "dark"
+            ? styles.phone_number_login_wrapper_dark
+            : styles.phone_number_login_wrapper_light
+        }`}
+        open={open}
+        toggle={() => {
+          setOpen(!open);
+        }}
+      >
+        <ModalHeader
+          className={
+            context.theme === "dark"
+              ? styles.modal_header_dark
+              : styles.modal_header_light
+          }
+        >
+          <p
+            style={{
+              color: context.theme === "dark" ? "white" : "black",
+              margin: 0,
+              padding: 0,
+            }}
+          >
+            {" "}
+            Prijava mobilnim brojem
+          </p>
+        </ModalHeader>
+        <ModalBody
+          className={`${styles.phone_number_login_bottom} ${
+            context.theme === "dark"
+              ? styles.phone_number_login_bottom_dark
+              : styles.phone_number_login_bottom_light
+          }`}
+        >
+          {!smsSent ? (
+            <>
+              <InputGroup style={{ marginBottom: 16 }}>
+                <FormInput
+                  className={styles.mobile_phone_input}
+                  type="tel"
+                  placeholder="Broj mobilnog telefona"
+                  style={
+                    context.theme === "dark"
+                      ? {
+                          color: "white",
+                          background: "#232323",
+                        }
+                      : {}
+                  }
+                  onChange={(e) =>
+                    setPhoneNumber((e.target as HTMLTextAreaElement).value)
+                  }
+                />
+                <InputGroupAddon type="append">
+                  <Button
+                    block
+                    theme={context.theme === "dark" ? "light" : "dark"}
+                    onClick={() => {
+                      signInWithPhoneNumber(
+                        auth,
+                        phoneNumber,
+                        window.recaptchaVerifier
+                      )
+                        .then((confirmationResult) => {
+                          // SMS sent. Prompt user to type the code from the message, then sign the
+                          // user in with confirmationResult.confirm(code).
+                          window.confirmationResult = confirmationResult;
+                          setSmsSent(true);
+                          toast.info(
+                            'SMS poruka je poslana na vaš mobilni broj, unesite je i pritisnite "Podnesi" kako biste se prijavili mobilnim brojem'
+                          );
+                          // ...
+                        })
+                        .catch((error) => {
+                          // Error; SMS not sent
+                          // ...
+                        });
+                    }}
+                    //id="phone_number_submit_button"
+                  >
+                    Pošalji verifikacijski kôd
+                  </Button>
+                </InputGroupAddon>
+              </InputGroup>
+              <Alert
+                theme={context.theme}
+                style={{ color: context.theme === "dark" ? "white" : "black" }}
+              >
+                Broj se mora napisati u obliku pozivnog broja države te mobilnog
+                broja isključujući početnu nulu i bez razmaka! Npr.
+                +385951234567
+              </Alert>
+            </>
+          ) : (
+            <InputGroup>
+              <FormInput
+                className={styles.mobile_phone_input}
+                type="tel"
+                placeholder="Verifikacijski kôd"
+                style={
+                  context.theme === "dark"
+                    ? {
+                        color: "white",
+                        background: "#232323",
+                      }
+                    : {}
+                }
+                onChange={(e) =>
+                  setVerificationCode((e.target as HTMLTextAreaElement).value)
+                }
+              />
+              <InputGroupAddon type="append">
+                <Button
+                  theme={context.theme === "dark" ? "light" : "dark"}
+                  onClick={() => {
+                    window.confirmationResult.confirm(verificationCode);
+                  }}
+                >
+                  Podnesi
+                </Button>
+              </InputGroupAddon>
+            </InputGroup>
+          )}
+        </ModalBody>
+      </Modal>
+      <div id="phone_number_submit_button"></div>
 
       <footer
         className={styles.footer}

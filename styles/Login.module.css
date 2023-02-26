@@ -48,6 +48,11 @@
   color: white;
 }
 
+.phone_login_button {
+  background: #707070 !important;
+  color: white;
+}
+
 .login_button:hover {
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.75);
 }
@@ -75,6 +80,15 @@
 
 .login_form {
   width: clamp(50px, 50vw, 1000px);
+}
+
+.phone_number_login_bottom_dark {
+  background: #212121;
+}
+
+.modal_header_dark {
+  background-color: #212121;
+  color: white !important;
 }
 @media screen and (max-width: 900px) {
   .login_form {
