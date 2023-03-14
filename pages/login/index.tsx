@@ -22,8 +22,12 @@ import {
 } from "shards-react";
 
 import {
+  SignInWithPopupHook,
   useAuthState,
   useSignInWithEmailAndPassword,
+  useSignInWithGithub,
+  useSignInWithGoogle,
+  useSignInWithMicrosoft,
 } from "react-firebase-hooks/auth";
 import { useLoginFirebaseState } from "hooks/useFirebaseCredentials";
 import { auth } from "../../firebase/firebaseconf";
@@ -57,10 +61,31 @@ const Login: NextPage = () => {
   const [verificationCode, setVerificationCode] = useState<string>("");
 
   const [user2, loading2, error2] = useAuthState(auth);
+  const [
+    signInWithGoogle,
+    googleUser,
+    googleLoading,
+    googleError,
+  ]: SignInWithPopupHook = useSignInWithGoogle(auth);
+
+  const [
+    signInWithGithub,
+    githubUser,
+    githubLoading,
+    githubError,
+  ]: SignInWithPopupHook = useSignInWithGithub(auth);
+
+  const [
+    signInWithMicrosoft,
+    microsoftUser,
+    microsoftLoading,
+    microsoftError,
+  ]: SignInWithPopupHook = useSignInWithMicrosoft(auth);
 
   useEffect(() => {
-    user2 && router.push("/dashboard");
-  }, [user2]);
+    if (user2 || githubUser || googleUser || microsoftUser)
+      router.push("/dashboard");
+  }, [user2, githubUser, googleUser, microsoftUser]);
 
   useEffect(() => {
     if (error) {
@@ -99,10 +124,6 @@ const Login: NextPage = () => {
     //console.log(test, "TESAfasjnodiwsa");
     //router.push("/dashboard");
   };
-
-  function signInWithGoogle(): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <div className={styles.wrapper}>
