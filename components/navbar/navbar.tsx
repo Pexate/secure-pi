@@ -27,6 +27,7 @@ import { connectFirestoreEmulator } from "firebase/firestore";
 import useWindowDimensions from "hooks/useWindowDimensions";
 
 import { BiMenuAltRight } from "react-icons/bi";
+import { Flex } from "rebass";
 
 const CustomNavbar: FunctionComponent = () => {
   const context: { theme: string; changeTheme: () => void } = useThemeContext();
@@ -80,34 +81,7 @@ const CustomNavbar: FunctionComponent = () => {
       {width && width < 576 ? (
         <>
           <Nav className="ml-auto">
-            {user && (
-              <NavItem>
-                <Badge
-                  theme={
-                    context.theme === "dark"
-                      ? profileNameColor
-                        ? "dark"
-                        : "light"
-                      : profileNameColor
-                      ? "light"
-                      : "dark"
-                  }
-                  style={{
-                    marginRight: 8,
-                    cursor: "pointer",
-                    fontSize: 12,
-                    padding: 10,
-                  }}
-                  onMouseOver={() => changeProfileNameColor()}
-                  onMouseOut={() => changeProfileNameColor()}
-                  onClick={() => router.push("/dashboard")}
-                >
-                  {user.displayName}
-                </Badge>
-              </NavItem>
-            )}
-
-            <NavItem>
+            <NavItem style={{ display: "flex" }}>
               <button
                 style={{
                   border: "none",
@@ -122,10 +96,25 @@ const CustomNavbar: FunctionComponent = () => {
                   style={{
                     filter:
                       context.theme === "dark" ? "invert(100%)" : "invert(0%)",
+                    margin: "0 16px 0 0",
                   }}
                   alt={"Change theme"}
                 />
               </button>
+              {user && (
+                <NavItem>
+                  <img
+                    className={`${styles.profileImage} ${
+                      context.theme === "dark"
+                        ? styles.profileImage_dark
+                        : styles.profileImage_light
+                    }`}
+                    src={user?.photoURL ? user?.photoURL : photoURL}
+                    alt="profile picture"
+                    onClick={() => router.push("/dashboard")}
+                  />
+                </NavItem>
+              )}
               <button
                 style={{
                   border: 0,

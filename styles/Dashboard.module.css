@@ -322,6 +322,12 @@
   }
 }
 
+@media screen and (max-width: 480px) {
+  .text_email {
+    display: none !important;
+  }
+}
+
 @media screen and (max-width: 280px) {
   .upper_section {
     width: 100vw;

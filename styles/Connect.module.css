@@ -69,6 +69,7 @@
 
 .stream_video {
   margin-bottom: 20px;
+  height: clamp(0px, 100vh, 800px);
 }
 
 .stream_video_dark {

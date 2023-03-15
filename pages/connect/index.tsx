@@ -88,11 +88,11 @@ const Home: NextPage = () => {
               <p>{pid ? pid : id}</p>
             </div>
             <video
-              className={
+              className={`${styles.stream_video} ${
                 context.theme === "dark"
                   ? styles.stream_video_light
                   : styles.stream_video_dark
-              }
+              }`}
               id="streamVideo"
               autoPlay
               ref={videoRef}

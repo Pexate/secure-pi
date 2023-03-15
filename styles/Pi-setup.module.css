@@ -47,7 +47,7 @@
 }
 
 .watch_video {
-  height: 50vw;
+  width: 60vw;
   max-width: 90vw;
   position: relative;
   z-index: 0;
@@ -136,6 +136,9 @@
   background: 0;
   font-weight: bold;
   border-radius: 10px;
+  max-width: 50vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .id_of_whitelisted_user_light:hover {
@@ -152,4 +155,40 @@
   background: white;
   color: #232323;
   cursor: pointer;
+}
+
+@media screen and (max-width: 720px) {
+  .whitelist_id_input_group {
+    width: 100%;
+  }
+  .watch_video_id {
+    font-size: 20px;
+  }
+  .watch_video {
+    width: 100vw;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .watch_video_id_container {
+    flex-direction: column;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 90vw;
+    flex: 1;
+    overflow: hidden;
+    align-items: center;
+  }
+  .watch_video_id {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+    font-size: 14px;
+    width: 100%;
+  }
+  .whitelist_header {
+    font-size: 24px;
+    line-height: 100%;
+  }
 }

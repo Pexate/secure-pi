@@ -30,14 +30,6 @@ const Home: NextPage = () => {
   const videoRef = useRef(null);
   let dontTryAgain = false;
 
-  /* This
-  const stream = async () => {
-    setShowId(true);
-    setStreamId(obj.id);
-    setCameraOutput(obj.stream);
-  };
-  */
-
   const router = useRouter();
 
   const [user, loading, error] = useAuthState(auth);
@@ -45,12 +37,12 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     try {
-      console.log(pid, Array.isArray(pid), pid[0], user, !dontTryAgain);
+      console.log(pid);
     } catch (e) {}
-    if (pid && Array.isArray(pid) && pid[0] && user && !dontTryAgain) {
+    if (pid) {
       dontTryAgain = true;
-      connect(pid[0], user?.uid, videoRef);
-      getDeviceName(pid[0]).then((deviceName) => setName(deviceName));
+      connect(pid, user?.uid, videoRef);
+      getDeviceName(pid).then((deviceName) => setName(deviceName));
     }
   }, []);
 

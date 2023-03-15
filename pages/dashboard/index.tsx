@@ -201,8 +201,12 @@ const Dashboard: NextPage = () => {
                             fontSize: 20,
                           }}
                         >
-                          ({user?.email ? user.email : user.phoneNumber}
-                          )
+                          <p
+                            className={styles.text_email}
+                            style={{ margin: 0, display: "inline" }}
+                          >
+                            ({user?.email ? user.email : user.phoneNumber})
+                          </p>
                           <HiPencilAlt
                             className={styles.pencil_edit_button}
                             onClick={() => {

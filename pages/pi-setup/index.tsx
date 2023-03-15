@@ -176,6 +176,7 @@ const Setup: NextPage = () => {
             <div className={styles.bottom_wrapper}>
               <h2
                 style={{ color: context.theme === "dark" ? "white" : "black" }}
+                className={styles.whitelist_header}
               >
                 Lista dozvoljenih korisnika
               </h2>
