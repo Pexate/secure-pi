@@ -88,10 +88,15 @@ const Home: NextPage = () => {
               id="streamVideo"
               autoPlay
               ref={videoRef}
+              style={{ display: name ? "block" : "none" }}
             ></video>
             <InputGroup className={name ? styles.display_none : ""}>
               <FormInput
-                className={styles.id_input}
+                className={`${styles.id_input} ${
+                  context.theme === "dark"
+                    ? styles.id_input_dark
+                    : styles.id_input_light
+                }`}
                 onChange={(e: FormEvent<any>) => {
                   const target = e.target as HTMLInputElement;
                   target && setId(target.value);

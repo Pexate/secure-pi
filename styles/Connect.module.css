@@ -86,3 +86,16 @@
   height: 0;
   opacity: 0;
 }
+
+.id_input_light {
+  border: 1px solid #9f9f9f !important;
+}
+
+.id_input_light:active {
+  border: 1px solid #000000 !important;
+}
+
+.id_input_light:focus {
+  border: 1px solid #000000 !important;
+  box-shadow: 0px 0px 10px 0px #0000006f;
+}

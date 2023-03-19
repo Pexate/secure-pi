@@ -6,7 +6,7 @@ const createURLFromCrop = async (image: HTMLImageElement, crop: PixelCrop) => {
   canvasPreview(image, canvas, crop);
 
   const blob = await new Promise((resolve) => {
-    canvas.toBlob(resolve);
+    canvas.toBlob(resolve, "image/jpeg", 0.3);
   });
 
   if (!blob) {
@@ -20,7 +20,6 @@ const createURLFromCrop = async (image: HTMLImageElement, crop: PixelCrop) => {
   */
   //@ts-ignore
   let previewUrl = URL.createObjectURL(blob);
-  console.log(previewUrl);
   //@ts-ignore
   const file = new File([blob], "name");
   return file;

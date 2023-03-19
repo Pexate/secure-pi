@@ -681,14 +681,16 @@ const Dashboard: NextPage = () => {
                   if (imgRef.current && completedCrop) {
                     toast.promise(
                       async () => {
+                        if (!imgRef.current) return;
                         const cropURL = await createURLFromCrop(
-                          //@ts-ignore
                           imgRef.current,
                           completedCrop
                         );
+                        console.log(cropURL);
 
                         if (cropURL && user) {
                           const url = await setProfilePicture(cropURL, user);
+                          console.log(url);
                           setPhotoURL(url);
                         }
                         setOpened(false);

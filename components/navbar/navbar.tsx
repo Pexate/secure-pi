@@ -61,7 +61,7 @@ const CustomNavbar: FunctionComponent = () => {
       }
       theme={"transparent"}
       expand="sm"
-      className={styles.navbar}
+      className={styles.navbar_custom}
     >
       <NavbarBrand>
         <Link href={user ? "/dashboard" : "/"}>

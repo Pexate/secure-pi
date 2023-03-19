@@ -244,7 +244,7 @@ const Login: NextPage = () => {
                   alt="Google logo"
                   style={{ marginRight: 16 }}
                 />
-                Prijavi se s Googlom{" "}
+                Prijavi se putem Google-a{" "}
               </button>
               <button
                 onClick={() => {
@@ -261,7 +261,7 @@ const Login: NextPage = () => {
                   style={{ marginRight: 16, filter: "invert(100%)" }}
                   onClick={() => setOpen(!open)}
                 />
-                Prijavite se mobilnim brojem{" "}
+                Prijavite se putem mobilnog broja{" "}
               </button>
               <button
                 onClick={() => {
@@ -290,7 +290,7 @@ const Login: NextPage = () => {
                   alt="Google logo"
                   style={{ marginRight: 16 }}
                 />
-                Prijavi se s Microsoftom{" "}
+                Prijavi se putem Microsoft-a{" "}
               </button>
               <button
                 onClick={() => {
@@ -331,7 +331,7 @@ const Login: NextPage = () => {
                   alt="Github logo"
                   style={{ marginRight: 16, filter: "invert(100%)" }}
                 />
-                Prijavi se s GitHubom{" "}
+                Prijavi se putem GitHub-a{" "}
               </button>
             </div>
           </div>
