@@ -112,8 +112,7 @@ const ResetPassword: NextPage = () => {
                 />
               </FormGroup>
               <Button
-                //@ts-ignore
-                theme={context.theme === "dark" ? "white" : "dark"}
+                theme={context.theme === "dark" ? "light" : "dark"}
                 outline
                 block
                 onClick={() => {

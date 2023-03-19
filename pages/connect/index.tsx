@@ -30,14 +30,6 @@ const Home: NextPage = () => {
   const videoRef = useRef(null);
   let dontTryAgain = false;
 
-  /* This
-  const stream = async () => {
-    setShowId(true);
-    setStreamId(obj.id);
-    setCameraOutput(obj.stream);
-  };
-  */
-
   const router = useRouter();
 
   const [user, loading, error] = useAuthState(auth);
