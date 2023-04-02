@@ -48,12 +48,11 @@ const Home: NextPage = () => {
             SecurePi - sustav za nadzor objekta
           </h1>
           <h3 style={{ color: context.theme === "dark" ? "white" : "black" }}>
-            Gdje početi?
+            Gdje započeti?
           </h3>
           <p>
-            Da biste mogli pristupiti mogučnostima sustava, morate se
-            registrirati ili prijaviti ako već imate korisnički račun, to možete
-            napraviti na sljedečem linku: <Link href="/login">Prijava</Link> ili{" "}
+            Da biste pristupili mogućnostima sustava, registrirajte se ili
+            prijavite na sljedećem linku: <Link href="/login">Prijava</Link> ili{" "}
             <Link href="/register">Registracija</Link>
           </p>
         </div>

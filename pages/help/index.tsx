@@ -62,13 +62,12 @@ const Help = () => {
               internetska veza (preporučuje se žičana). <br />
               <br />
               Kada se prijavite u svoj korisnički račun na Raspberry Piu, morate
-              stisnuti gumb "Streamaj" koji će vas odvesti na stranicu za
-              prijenos video sadržaja. Morate pritisnuti gumb "Streamaj video
-              sadržaj" i nakon što ste ga pritisnuli preglednik će vas pitati za
-              pristup kameri i mirkofonu, obavezno prihvatite i ubrzo će vam se
-              pokrenuti prijenos. Iznad gumba će vam se pojaviti okvir u kojem
-              možete vidjeti što prenosite i unutar njega se nalazi kôd koji
-              trebate za povezivanje s drugog uređaja.
+              stisnuti gumb "Streamaj" koji vodi na stranicu za prijenos video
+              sadržaja. Nakon klika na gumb "Streamaj video sadržaj" preglednik
+              vas pita za pristup kameri i mikrofonu, prihvaćanjem pokrećete
+              prijenos. Iznad gumba vam se pojavljuje okvir u kojem možete
+              vidjeti što prenosite te kôd koji trebate za povezivanje s drugog
+              uređaja.
             </p>
           </Collapse>
 
@@ -101,15 +100,14 @@ const Help = () => {
                 padding: "0 16px 16px 16px",
               }}
             >
-              Kada se prijavite u vaš račun, morati stisnuti gumb "Gledaj" koji
-              će vas odvesti na stranicu za gledanje video sadržaja. Kako biste
-              se mogli povezati na Raspberry Pi morate znati kôd od tog uređaja
-              i u polje za unos na stranici morate unjeti taj kôd i pritisnuti
-              "Gledaj". Ubrzo će nestati polje za unos i biti će zamjenuto sa
-              okvirom u kojem se nalazi video prijenos kamere i iznad nje ime
-              uređaja. Bitno je za napomenuti da korisnikov id (koji se može
-              nači na stranici koriničkog računa) treba biti unutar liste
-              dozvoljenih korisnika kako bi mogao pristupiti video sadržaju.
+              Prijavom u svoj račun, kliknite gumb "Gledaj" koji vas vodi na
+              stranicu za gledanje video sadržaja. Kako biste se mogli povezati
+              sa Raspberry Piem morate znati kôd uređaja i te u polje za unos na
+              stranici unesite kôd i klinite "Gledaj". Ubrzo će nestati polje za
+              unos i biti će zamjenjeno okvirom u kojem se nalazi video prijenos
+              kamere i ime uređaja. Napomena: korisnikov id (koji se nalazi
+              stranici korisničkog računa) treba biti unutar liste dozvoljenih
+              korisnika kako bi mogao pristupiti video sadržaju.
             </p>
           </Collapse>
           <button
@@ -136,12 +134,12 @@ const Help = () => {
                 padding: 16,
               }}
             >
-              Kada se prijavite, nalazit ćete se na stranici koriničkog računa.
-              Klikom na sliku koja se nalazi iznad korisničkog imena i e-pošte
-              se spušta dijaloški okvir u kojemu moramo stisnuti gumb "Odaberi
-              sliku". Kada odaberemo, tu sliku možemo izrezati i kada smo gotovi
-              s rezanjem, pritisnuti gumb "Izmjeni profilnu sliku". <br />
-              <br /> Ubrzo će profilna slika biti izmjenjena.
+              Nakon prijave, na stranici korisničkog računa, klikom na sliku
+              koja se nalazi iznad korisničkog imena i e-pošte otvara se
+              dijaloški okvir u kojemu moramo stisnuti gumb "Odaberi sliku".
+              Kada odaberemo, sliku možemo izrezati na željenu veličinu i
+              pritisnuti gumb "Izmjeni profilnu sliku". <br />
+              <br /> Ubrzo će profilna slika biti izmijenjena.
             </p>
           </Collapse>
         </div>

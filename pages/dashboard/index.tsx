@@ -267,7 +267,7 @@ const Dashboard: NextPage = () => {
                           </Tooltip>
                         </span>
                         <div style={{ textAlign: "center", marginBottom: 6 }}>
-                          {"Korisnikov ID: " + userID}
+                          {"Korisnički ID: " + userID}
                           <span>
                             <TbCopy
                               className={styles.pencil_edit_button}

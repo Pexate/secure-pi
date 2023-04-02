@@ -180,7 +180,7 @@ const Register: NextPage = () => {
                   className={styles.form_input}
                   type="text"
                   id="#username"
-                  placeholder="Unjeti ovdje"
+                  placeholder="Unesite ovjde"
                   style={
                     context.theme === "dark"
                       ? {
@@ -205,7 +205,7 @@ const Register: NextPage = () => {
                   className={styles.form_input}
                   type="email"
                   id="#email"
-                  placeholder="Unjeti ovdje"
+                  placeholder="Unesite ovdje"
                   style={
                     context.theme === "dark"
                       ? {
@@ -230,7 +230,7 @@ const Register: NextPage = () => {
                   className={styles.form_input}
                   type="password"
                   id="#password"
-                  placeholder="Unjeti ovdje"
+                  placeholder="Unesite ovdje"
                   style={
                     context.theme === "dark"
                       ? { color: "white", background: "#232323" }
