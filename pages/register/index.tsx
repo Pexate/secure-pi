@@ -294,7 +294,7 @@ const Register: NextPage = () => {
                   alt="Google logo"
                   style={{ marginRight: 16 }}
                 />
-                Prijavi se putem Google-a{" "}
+                Prijavi se putem Google računa{" "}
               </button>
               <button
                 onClick={() => {
@@ -346,7 +346,7 @@ const Register: NextPage = () => {
                   alt="Google logo"
                   style={{ marginRight: 16 }}
                 />
-                Prijavi se putem Microsoft-a{" "}
+                Prijavi se putem Microsoft računa{" "}
               </button>
               <button
                 onClick={() => {
@@ -387,7 +387,7 @@ const Register: NextPage = () => {
                   alt="Github logo"
                   style={{ marginRight: 16, filter: "invert(100%)" }}
                 />
-                Prijavi se putem GitHub-a{" "}
+                Prijavi se putem GitHub računa{" "}
               </button>
             </div>
           </div>

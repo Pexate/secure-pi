@@ -104,7 +104,7 @@ const Help = () => {
               stranicu za gledanje video sadržaja. Kako biste se mogli povezati
               sa Raspberry Piem morate znati kôd uređaja i te u polje za unos na
               stranici unesite kôd i klinite "Gledaj". Ubrzo će nestati polje za
-              unos i biti će zamjenjeno okvirom u kojem se nalazi video prijenos
+              unos i bit će zamjenjeno okvirom u kojem se nalazi video prijenos
               kamere i ime uređaja. Napomena: korisnikov id (koji se nalazi
               stranici korisničkog računa) treba biti unutar liste dozvoljenih
               korisnika kako bi mogao pristupiti video sadržaju.

@@ -300,7 +300,7 @@ const Dashboard: NextPage = () => {
                 <div className={styles.recently_connected_pis}>
                   <div className={styles.recently_connected_pis_content}>
                     <p style={{ fontSize: 24, marginRight: 8 }}>
-                      Prethodno povezani Pievi
+                      Prethodno povezani uređaji
                     </p>{" "}
                     <div className={styles.pi_container_container}>
                       {pis && pis.length
