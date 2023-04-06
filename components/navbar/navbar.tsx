@@ -147,75 +147,55 @@ const CustomNavbar: FunctionComponent = () => {
             >
               {user ? (
                 <>
-                  <Link href="/pi-setup">
-                    <div
-                      className={`${styles.menu_dropdown_item} ${
-                        context.theme === "dark"
-                          ? styles.menu_dropdown_item_dark
-                          : styles.menu_dropdown_item_light
-                      }`}
-                    >
-                      Streamaj
-                    </div>
-                  </Link>
-                  <Link href="/connect">
-                    <div
-                      className={`${styles.menu_dropdown_item} ${
-                        context.theme === "dark"
-                          ? styles.menu_dropdown_item_dark
-                          : styles.menu_dropdown_item_light
-                      }`}
-                    >
-                      Gledaj
-                    </div>
-                  </Link>
-                  <Link href="/help">
-                    <div
-                      className={`${styles.menu_dropdown_item} ${
-                        context.theme === "dark"
-                          ? styles.menu_dropdown_item_dark
-                          : styles.menu_dropdown_item_light
-                      }`}
-                    >
-                      Upute
-                    </div>
-                  </Link>
+                  {[
+                    ["pi-setup", "Streamaj"],
+                    ["connect", "Gledaj"],
+                    ["help", "Upute"],
+                    ["contact", "Kontakt"],
+                  ].map((x, i) => {
+                    return (
+                      <Link
+                        href={`/${x[0]}`}
+                        className={styles.menu_dropdown_link}
+                      >
+                        <div
+                          className={`${styles.menu_dropdown_item} ${
+                            context.theme === "dark"
+                              ? styles.menu_dropdown_item_dark
+                              : styles.menu_dropdown_item_light
+                          }`}
+                        >
+                          {x[1]}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </>
               ) : (
                 <>
-                  <Link href="/register" className={styles.menu_dropdown_link}>
-                    <div
-                      className={`${styles.menu_dropdown_item} ${
-                        context.theme === "dark"
-                          ? styles.menu_dropdown_item_dark
-                          : styles.menu_dropdown_item_light
-                      }`}
-                    >
-                      Registriraj se
-                    </div>
-                  </Link>
-                  <Link href="/login">
-                    <div
-                      className={`${styles.menu_dropdown_item} ${
-                        context.theme === "dark"
-                          ? styles.menu_dropdown_item_dark
-                          : styles.menu_dropdown_item_light
-                      }`}
-                    >
-                      Prijavi se
-                    </div>
-                  </Link>
-                  <Link href="/help">
-                    <div
-                      className={`${styles.menu_dropdown_item} ${
-                        context.theme === "dark"
-                          ? styles.menu_dropdown_item_dark
-                          : styles.menu_dropdown_item_light
-                      }`}
-                    >
-                      Upute
-                    </div>
-                  </Link>
+                  {[
+                    ["register", "Registriraj se"],
+                    ["login", "Prijavi se"],
+                    ["help", "Upute"],
+                    ["contact", "Kontakt"],
+                  ].map((x, i) => {
+                    return (
+                      <Link
+                        href={`/${x[0]}`}
+                        className={styles.menu_dropdown_link}
+                      >
+                        <div
+                          className={`${styles.menu_dropdown_item} ${
+                            context.theme === "dark"
+                              ? styles.menu_dropdown_item_dark
+                              : styles.menu_dropdown_item_light
+                          }`}
+                        >
+                          {x[1]}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </>
               )}
             </div>
@@ -232,6 +212,7 @@ const CustomNavbar: FunctionComponent = () => {
                       ["pi-setup", "Streamaj"],
                       ["connect", "Gledaj"],
                       ["help", "Upute"],
+                      ["contact", "Kontakt"],
                     ].map((x, i) => {
                       return (
                         <Link
@@ -252,6 +233,7 @@ const CustomNavbar: FunctionComponent = () => {
                       ["register", "Registriraj se"],
                       ["login", "Prijavi se"],
                       ["help", "Upute"],
+                      ["contact", "Kontakt"],
                     ].map((x, i) => {
                       return (
                         <Link
