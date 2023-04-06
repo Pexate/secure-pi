@@ -52,8 +52,8 @@ const Home: NextPage = () => {
           </h3>
           <p>
             Da biste pristupili mogućnostima sustava, registrirajte se ili
-            prijavite na sljedećem linku: <Link href="/login">Prijava</Link> ili{" "}
-            <Link href="/register">Registracija</Link>
+            prijavite na sljedećoj poveznici: <Link href="/login">Prijava</Link>{" "}
+            ili <Link href="/register">Registracija</Link>
           </p>
         </div>
       </main>
