@@ -127,6 +127,7 @@ const ResetPassword: NextPage = () => {
                     }
                   );
                 }}
+                className={styles.reset_password_button}
               >
                 <b>Pošalji e-mail</b>
               </Button>

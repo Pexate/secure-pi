@@ -40,4 +40,7 @@
   .form_input {
     width: 100vw;
   }
+  .form_text_area {
+    height: 40vh !important;
+  }
 }

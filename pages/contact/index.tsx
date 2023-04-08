@@ -57,7 +57,7 @@ const Contact: NextPage = () => {
               </h3>
 
               <FormTextarea
-                placeholder="Unesi svoju poruku"
+                placeholder="Unesite svoju poruku"
                 onChange={(e) => {
                   setText(e.target.value);
                 }}
@@ -67,24 +67,16 @@ const Contact: NextPage = () => {
                   height: "128px",
                   color: context.theme === "dark" ? "#ffffff" : "#000000",
                 }}
+                className={styles.form_text_area}
               />
               <Button
                 theme={context.theme === "dark" ? "light" : "dark"}
                 outline
                 block
                 onClick={() => {
-                  toast.promise(
-                    async () => {
-                      window.location.href = `mailto:phantomforcesbetaaa@gmail.com?subject=Poruka od ${
-                        user?.email ? user.email : "Anonimnog korisnika"
-                      }&body=${text}`;
-                    },
-                    {
-                      pending: "Slanje e-maila u tijeku...",
-                      success: "Poruka uspješno poslana!",
-                      error: "Dogodila se greška tijekom slanja...",
-                    }
-                  );
+                  window.location.href = `mailto:phantomforcesbetaaa@gmail.com?subject=Poruka od ${
+                    user?.email ? user.email : "Anonimnog korisnika"
+                  }&body=${text}`;
                 }}
               >
                 Pošaljite e-poštu
