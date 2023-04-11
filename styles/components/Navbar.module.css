@@ -117,6 +117,16 @@
 .tooltip_custom_dark {
 }
 
+.moon:hover {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.moon_button:focus {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
 @keyframes test {
   0% {
     opacity: 0;

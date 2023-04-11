@@ -88,6 +88,7 @@ const CustomNavbar: FunctionComponent = () => {
                   background: "transparent",
                 }}
                 onClick={context.changeTheme}
+                className={styles.moon_button}
               >
                 <Image
                   src="/moon.png"
@@ -99,6 +100,7 @@ const CustomNavbar: FunctionComponent = () => {
                     margin: "0 16px 0 0",
                   }}
                   alt={"Change theme"}
+                  className={styles.moon}
                 />
               </button>
               {user && (
@@ -265,6 +267,7 @@ const CustomNavbar: FunctionComponent = () => {
                     justifyContent: "center",
                   }}
                   onClick={context.changeTheme}
+                  className={styles.moon_button}
                 >
                   <Image
                     src="/moon.png"
@@ -278,6 +281,7 @@ const CustomNavbar: FunctionComponent = () => {
                       marginRight: 12,
                     }}
                     alt={"Change theme"}
+                    className={styles.moon}
                   />
                 </button>
               </NavItem>

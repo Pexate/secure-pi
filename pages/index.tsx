@@ -11,8 +11,6 @@ import { auth } from "../firebase/firebaseconf";
 
 import { useEffect } from "react";
 import router from "next/router";
-import { useFirebaseState } from "hooks/useFirebaseCredentials";
-import { User } from "firebase/auth";
 import Link from "next/link";
 
 const Home: NextPage = () => {
@@ -20,6 +18,16 @@ const Home: NextPage = () => {
   const [user, loading, error] = useAuthState(auth);
   useEffect(() => {
     if (user && loading === false) router.push("/dashboard");
+    if (localStorage.getItem("visit") === null) {
+      console.log("hello");
+      const isDarkMode =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      console.log(isDarkMode);
+      localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+      context.changeTheme(isDarkMode ? "dark" : "light");
+      localStorage.setItem("visit", "true");
+    }
   }, [user, loading, error]);
   return (
     <div className={styles.container}>
