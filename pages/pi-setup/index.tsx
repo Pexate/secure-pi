@@ -161,7 +161,7 @@ const Setup: NextPage = () => {
                     let videoStream = await navigator.mediaDevices.getUserMedia(
                       {
                         video: true,
-                        audio: true,
+                        audio: false,
                       }
                     );
                     videoRef.current.srcObject = videoStream;

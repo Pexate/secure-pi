@@ -65,8 +65,8 @@ const Dashboard: NextPage = () => {
   const [photoURL, setPhotoURL] = useState<string>(
     "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
   );
-  const [shown, setShown] = useState(false);
-  const [pis, setPis] = useState([]);
+  const [shown, setShown] = useState<boolean>(false);
+  const [pis, setPis] = useState<{ id: string; name: string }[]>([]);
 
   const [imgSrc, setImgSrc] = useState("");
   const imgRef = useRef<HTMLImageElement>(null);
@@ -560,6 +560,7 @@ const Dashboard: NextPage = () => {
                   onClick={() => {
                     console.log(user);
                     user && deleteUserAndUserData(user);
+                    router.push("/");
                   }}
                 >
                   Želim izbrisati korisnički račun

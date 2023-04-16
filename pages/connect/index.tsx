@@ -23,7 +23,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 
 import { useRouter } from "next/router";
 
-const Home: NextPage = () => {
+const Connect: NextPage = () => {
   const context: { theme: string; setTheme: () => void } = useThemeContext();
   const [id, setId] = useState<null | string>(null);
   const [name, setName] = useState<null | string>(null);
@@ -33,6 +33,7 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   const [user, loading, error] = useAuthState(auth);
+  /*
   const { pid } = router.query;
 
   useEffect(() => {
@@ -51,6 +52,7 @@ const Home: NextPage = () => {
       router.push("/login");
     }
   }, []);
+  */
 
   return (
     <div className={styles.container}>
@@ -150,4 +152,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Connect;
