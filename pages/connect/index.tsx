@@ -79,7 +79,7 @@ const Connect: NextPage = () => {
               className={name ? styles.watch_wrapper_info : styles.display_none}
             >
               <b style={{ textAlign: "center" }}>{name ? name : ""}</b>
-              <p>{pid ? pid : id}</p>
+              <p>{id}</p>
             </div>
             <video
               className={`${styles.stream_video} ${
