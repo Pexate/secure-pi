@@ -53,7 +53,7 @@ messaging.onBackgroundMessage((payload) => {
   // Customize notification here
   const notificationTitle = "Pokret detektiran!";
 
-  self.registration.showNotification(notificationTitle);
+  return self.registration.showNotification(notificationTitle);
 });
 
 messaging.onMessage((payload) => {
@@ -61,5 +61,5 @@ messaging.onMessage((payload) => {
   // ...
   const notificationTitle = "Pokret detektiran!";
 
-  self.registration.showNotification(notificationTitle);
+  return self.registration.showNotification(notificationTitle);
 });
