@@ -55,3 +55,11 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(notificationTitle);
 });
+
+messaging.onMessage((payload) => {
+  console.log("Message received. ", payload);
+  // ...
+  const notificationTitle = "Pokret detektiran!";
+
+  self.registration.showNotification(notificationTitle);
+});
